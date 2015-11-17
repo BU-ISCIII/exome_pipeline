@@ -1,0 +1,131 @@
+#########################################################
+#####  Analysis Exome Workflow - Configuration File #####													
+#########################################################
+
+-- General Parameters --
+
+- Run parameters.
+
+	· Select yes or no for preprocessing and alignment step.
+
+		Preprocessing = yes
+
+	· Select the variant caller you would like to use. [Samtools, GATK, Strelka, VarScan or JointSNVMix]
+
+		Postprocessing = Samtools
+
+	· Select how many threads do you want to use on your computer (only some of the programs use multithreading). Script not
+	prepare for cluster running.
+
+		THREADS = 7
+		Control = S
+		Case = T
+
+- Software and output paths. Please, select the executable paths of the prerequisite software (more info in the user guide).
+
+	BWA_PATH = /usr/bin  	
+	SAMTOOLS_PATH = /usr/bin  
+	JOINT_PATH /usr/local/bin/
+	TEMP = /home/jalonso/Escritorio/tmp
+	RESULTS_DIR =  /home/jalonso/Escritorio/Results
+	GATK_DIR = /home/jalonso/Escritorio/gatkRes
+	JOINT_RESULTS=/home/jalonso/Escritorio/JointSNVMix
+	STRELKA_INSTALL_DIR=/opt/strelka_workflow/
+	STRELKA_DIR=/home/jalonso/Escritorio/Strelka/
+
+
+- Files paths. Select the paths of your data. Required: data_path and ref_path always. Exome_enrichment for exome analysis 
+	and 1000 G files for gatk analysis.
+
+	· Path to your fastq files. More info for preparing the folder in the user guide.
+
+		DATA_PATH = /media/Book/datos
+
+	· Path to your reference genome.
+
+		REF_PATH = /home/jalonso/Documentos/Datos/reference/human_g1k_v37.fasta
+
+	· Path to bed file with the enrichment regions in your exome experiment.
+
+		EXOME_ENRICHMENT = /home/jalonso/Documentos/Datos/exome_targeted_regions_flank40.bed
+
+	· Data files from the 1000 G project. More info for downloading this files in the user guide.
+
+		SNPS_hg19 = /home/jalonso/Documentos/Datos/reference/dbsnp_135.b37.vcf
+		HAPMAP_33= /home/jalonso/Documentos/Datos/reference/hapmap_3.3.b37.sites.vcf
+		OMNI_1000G= /home/jalonso/Documentos/Datos/reference/1000G_omni2.5.b37.sites.vcf
+		INDELS_1000G = /home/jalonso/Documentos/Datos/reference/1000G_phase1.indels.b37.vcf
+		GENES_hg19=/home/jalonso/Escritorio/Results/ControlVsTumor/hg18_hgnc_ensembl_genes.bed
+
+-- Specific Parameters --
+
+1. Preprocessing.
+
+1.1. Trimming and Filter parameters.
+
+	1.1.1 Trimming
+
+	- Number of bases to be trimmed from left end (5' end). Default: 0
+
+	leftTrimBases =  
+
+	- Number of bases to be trimmed from right end (3' end). Default: 0
+
+	rightTrimBases =
+
+	- Cut-off PHRED quality score for trimming reads from right end (3' end)
+	For eg.: -q 20, will trim bases having PHRED quality score less than 20 at 3' end of the reads. 
+	Note: Quality trimming can be performed only if -l and -r are not used. Default: 0
+
+	qualCutOff=
+
+	- Read length cut-off. Reads shorter than given length will be discarded. Default: -1 
+ 
+	lenCutOff = 
+
+	1.1.2. Filtering
+
+	- The cut-off value for percentage of read length that should be of given quality. Default: 70
+
+	cutOffReadLen4HQ = 70
+
+	- The cut-off value for PHRED quality score for high-quality filtering. Default: 20
+
+	cutOffQualScore = 30
+
+1.2. Alignment Options.
+
+	For mapping step bwa is used with default parameters for single and paired en reads. More info in the user 
+	guide.
+
+2. Variant Calling.
+
+2.1 Samtools
+
+	minMapQ = 40
+	minPhredQ = 30
+
+2.2 VarScan
+
+	Somatic Mutation Calling comparing control and tumor samples is performed with default parameters.
+
+2.3 GATK
+	
+	Use default options. See users guide for more information.
+
+2.4 Strelka
+
+	It has its own config.file, you will found it in /etc/configStrelka.ini
+
+2.5 JointSNVMix
+
+	min_normal_depth = 5 
+	skip_size = 100 
+	min_tumour_depth = 5
+	model = snvmix2 
+	somatic_threshold = 0.2
+
+3. Variant Analysis: Variant Effect Predictor.This program needs the downloaded Ensembl database, look the user guide for
+instructions. Put here the directory where the DB is placed (usually /home/{user}/.vep)
+
+	cacheDir = /home/jalonso/.vep/

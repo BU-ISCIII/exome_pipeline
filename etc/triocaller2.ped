@@ -1,0 +1,3 @@
+family1	Sample_ND0011-wodup.bam	0	0	1	1	
+family1	Sample_ND0012-wodup.bam	0	0	2	1
+family1	Sample_ND0013-wodup.bam Sample_ND0011-wodup.bam	Sample_ND0012-wodup.bam	1	2		

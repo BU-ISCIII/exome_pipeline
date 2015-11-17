@@ -1,0 +1,52 @@
+
+# Input your variables
+
+## PARAMETERS ##
+THREADS=7
+Control="S"
+Case="T"
+
+## INFO PATHS ##
+LOC=`pwd`
+SCRIPTS_PATH=$LOC/software
+BWA_PATH=/usr/bin    	
+SAMTOOLS_PATH=/usr/bin  
+TEMP=/home/jalonso/Escritorio/tmp
+RESULTS_DIR=/home/jalonso/Escritorio/Results
+GATK_DIR=/home/jalonso/Escritorio/gatkRes
+
+## FILES PATHS ##     	
+DATA_PATH=/media/Book/datos
+REF_PATH=/home/jalonso/Documentos/Datos/reference/human_g1k_v37.fasta
+EXOME_ENRICHMENT=/home/jalonso/Documentos/Datos/exome_targeted_regions_flank40.bed
+SNPS_hg19=/home/jalonso/Documentos/Datos/reference/dbsnp_135.b37.vcf
+HAPMAP_33=/home/jalonso/Documentos/Datos/reference/hapmap_3.3.b37.sites.vcf
+OMNI_1000G=/home/jalonso/Documentos/Datos/reference/1000G_omni2.5.b37.sites.vcf
+INDELS_1000G=/home/jalonso/Documentos/Datos/reference/1000G_phase1.indels.b37.vcf
+GENES_hg19=/home/jalonso/Escritorio/Results/ControlVsTumor/hg18_hgnc_ensembl_genes.bed
+
+
+## Filter
+
+qualCutOff="-q 30"
+lenCutOff="-n 70" 
+cutOffReadLen4HQ="-l 70"
+cutOffQualScore="-s 30"
+
+
+## Samtools
+
+minMapQ="40"
+minPhredQ ="30"
+
+## JointSNVMix
+
+min_normal_depth="--min_normal_depth=5" 
+min_tumour_depth="--min_tumour_depth=5"
+skip_size="--skip_size=100" 
+model="--model=snvmix2" 
+somatic_threshold="--somatic_threshold=0.2"
+
+## Variant Effect Predictor. 
+
+cacheDir="-dir /home/jalonso/.vep/"
