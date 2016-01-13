@@ -16,19 +16,19 @@ TRIMMING=YES
 MAPPING=YES
 DUPLICATE_FILTER=YES
 VARIANT_CALLING=YES
-VARIANT_CALLER=GATK_HAPLOID
+VARIANT_CALLER=STRELKA
 
 ## System variables
 JAVA_RAM=-Xmx32g
 THREADS=10
-SCRIPTS_DIR=/home/smonzon/Documentos/desarrollo/exome_pipeline/lib
+SCRIPTS_DIR=/home/smonzon/Documentos/desarrollo/bioinfo_pipelines/lib
 TEMP_DIR=/home/smonzon/Documentos/desarrollo/TMP
 
 ## sge variables
 USE_SGE=0
 
 ## INPUT VARIABLES
-INPUT_DIR=/home/smonzon/Documentos/desarrollo/exome_pipeline/test/pruebas/RAW/cancer
+INPUT_DIR=/home/smonzon/Documentos/desarrollo/bioinfo_pipelines/test/pruebas/RAW/cancer
 
 # Sample info
 SAMPLES=blood_S1:tumor_T1

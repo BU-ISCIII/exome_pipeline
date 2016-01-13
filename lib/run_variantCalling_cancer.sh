@@ -5,7 +5,21 @@
 # Help                                                                                                                                                                                                                                                                                                                 
 # usage: run_variantCalling.sh ....                                                                                                                                                                                                                                                                                                 
 #                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                        
+
+##Functions
+function calling_sge  {                                                                                                                                                                                                                                                                                                                  
+	CALLING=$( qsub $2 -t 1-$3 -N $JOBNAME.CALLING $1)                                                                                                                                                                                                                                                                               
+    jobid_calling=$( echo $CALLING | cut -d ' ' -f3 | cut -d '.' -f1 )                                                                                                                                                                                                                                                               
+    echo -e "Variant Calling:$jobid_calling\n" >> $OUTPUT_DIR/logs/jobids.txt                                                                                                                                                                                                                                                      	 
+}                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                          
+function calling {                                                                                                                                                                                                                                                                                                                       
+ 	for count in `seq 1 $2`                                                                                                                                                                                                                                                                                                              
+    do                                                                                                                                                                                                                                                                                                                                   
+     	CALLING=$($1 $count)                                                                                                                                                                                                                                                                                                             
+    done                                                                                                                                                                                                                                                                                                                                 
+}                                                                                                                                                                                                                                                                                                                                        
+
 set -e                                                                                                                                                                                                                                                                                                                 
 set -u                                                                                                                                                                                                                                                                                                                 
 set -x                                                                                                                                                                                                                                                                                                                 
@@ -39,32 +53,26 @@ else
 	CALLING_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid" 
 fi
 
-if [ $VARIAN_CALLING == "YES" ];then
+if [ $VARIANT_CALLING == "YES" ];then
 	if [ $VARIANT_CALLER == "STRELKA" ];then
 		mkdir -p $OUTPUT_DIR/variant_calling/variants_strelka                                                                                                                                                                                                                                                                                                    
 		CALLING_CMD="$SCRIPTS_DIR/strelka.sh $OUTPUT_DIR/Alignment/BAM $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_strelka $SAMPLE_NAMES $OUTPUT_BAM_NAMES $CONTROL_NAMES $CASE_NAMES $VCF_NAMES $STRELKA_CONFIG"                                                                                                                                                                       
 		if [ "$USE_SGE" = 1 ];then
-           calling_sge $CALLING_CMD $CALLING_ARGS $sample_number
+           calling_sge "$CALLING_CMD" "$CALLING_ARGS" $sample_number
 		else
-           calling $CALLING_CMD $sample_number
+           calling "$CALLING_CMD" $sample_number
 		fi
 	fi
 fi
 
 
 if [ $VARIANT_CALLING == "YES" ]; then                                                                                                                                                                                                                                                                                         
-
-
+	if [ $VARIANT_CALLER == "MUTEC" ];then
+		mkdir -p $OUTPUT_DIR/variant_calling/variants_mutec
+		CALLING_CMD="$SCRIPTS_DIR/mutec.sh $OUTPUT_DIR/Alignment/BAM $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_mutec $SAMPLE_NAMES $OUTPUT_BAM_NAMES $CONTROL_NAMES $CASE_NAMES $VCF_NAMES"
+        if [ "$USE_SGE" = 1 ];then
+        	calling_sge "$CALLING_CMD" "$CALLING_ARGS" $sample_number
+        else
+        	calling "$CALLING_CMD" $sample_number
+        fi
 fi
-
-function calling_sge  {
-    	CALLING=$( qsub $2 -t 1-$3 -N $JOBNAME.CALLING $1)                                                                                                                                                                                                                                     
-       	jobid_calling=$( echo $CALLING | cut -d ' ' -f3 | cut -d '.' -f1 )                                                                                                                                                                                                                                                      
-       	echo -e "Variant Calling:$jobid_calling\n" >> $OUTPUT_DIR/logs/jobids.txt                                                                                                                                                                                                                                                      	
-}
-function calling {
-	for count in `seq 1 $2`                                                                                                                                                                                                                                                                                      
-    do                                                                                                                                                                                                                                                                                                                       
-    	CALLING=$($1 $count)                                                                                                                                                                                                                                                                                       
-    done                                                                                                                                                                                                                                                                                                                     
-}
