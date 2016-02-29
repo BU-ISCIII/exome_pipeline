@@ -10,13 +10,13 @@
 function calling_sge  {
  	CALLING=$( qsub $2 -N $JOBNAME.$3 $1)
     jobid_calling=$( echo $CALLING | cut -d ' ' -f3 | cut -d '.' -f1 )
-    echo -e "Variant Calling:$jobid_calling\n" >> $OUTPUT_DIR/logs/jobids.txt
+    echo -e "$4:$jobid_calling\n" >> $OUTPUT_DIR/logs/jobids.txt
 }
 
 function calling_sge_array  {
 	CALLING=$( qsub $2 -t 1-$3 -N $JOBNAME.$4 $1)
     jobid_calling=$( echo $CALLING | cut -d ' ' -f3 | cut -d '.' -f1 )
-    echo -e "Variant Calling:$jobid_calling\n" >> $OUTPUT_DIR/logs/jobids.txt
+    echo -e "$5:$jobid_calling\n" >> $OUTPUT_DIR/logs/jobids.txt
 }
 
 function calling {
@@ -72,21 +72,27 @@ if [ $VARIANT_CALLING == "YES" ];then
 fi
 
 
-if [ $VARIANT_CALLING == "YES" ]; then
-	if [ $VARIANT_CALLER == "MUTECT" ];then
-		mkdir -p $OUTPUT_DIR/variant_calling/variants_mutect
-		GATK_PREPROC_CMD="$SCRIPTS_DIR/gatk_preprocessing.sh $OUTPUT_DIR/Alignment/BAM $THREADS $REF_PATH $SAMPLE_NAMES $KNOWN_SNPS $KNOWN_INDELS $OUTPUT_BAM_NAMES $OUTPUT_DIR/variant_calling/variants_mutect $OUTPUT_BAM_REALIGNED_NAMES $OUTPUT_BAM_RECALIBRATED_NAMES $GATK_PATH"
-		PON_CMD="$SCRIPTS_DIR/mutect_panel.sh $OUTPUT_DIR/variant_calling/variants_mutect/recalibration $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_mutect $OUTPUT_BAM_NAMES $CONTROL_NAMES $VCF_NAMES $KNOWN_SNPS $COSMIC"
-		PON_COMB_CMD="$SCRIPTS_DIR/mutect_panel_comb.sh $OUTPUT_DIR/variant_calling/variants_mutect/panel_control $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_mutect/panel_control $OUTPUT_PON_NAME"
-		CALLING_CMD="$SCRIPTS_DIR/mutect.sh $OUTPUT_DIR/Alignment/BAM $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_mutec $SAMPLE_NAMES $OUTPUT_BAM_NAMES $CONTROL_NAMES $CASE_NAMES $VCF_NAMES"
-		if [ "$USE_SGE" = 1 ];then
-			calling_sge_array "$GATK_PREPROC_CMD" "$CALLING_ARGS" $sample_number $SUBJOBNAME
-        	calling_sge_array "$PON_CMD" "$PON_ARGS" $sample_number $SUBJOBNAME
-        	calling_sge "$PON_COMB_CMD" "$PON_COMB_ARGS" $SUBJOBNAME
-        	calling_sge_array "$CALLING_CMD" "$MUTECT_ARGS" $sample_number $SUBJOBNAME
-        else
-        	calling "$PON_CMD" $sample_number
-        	CALLING=${$PON_COMB_CMD $sample_number}
-        	calling "$CALLING_CMD" $sample_number
-        fi
+if [ $VARIANT_CALLER == "MUTECT" ];then
+	mkdir -p $OUTPUT_DIR/variant_calling/variants_mutect
+	GATK_PREPROC_CMD="$SCRIPTS_DIR/gatk_preprocessing.sh $OUTPUT_DIR/Alignment/BAM $THREADS $REF_PATH $SAMPLE_NAMES $KNOWN_SNPS $KNOWN_INDELS $OUTPUT_BAM_NAMES $OUTPUT_DIR/variant_calling/variants_mutect $OUTPUT_BAM_REALIGNED_NAMES $OUTPUT_BAM_RECALIBRATED_NAMES $GATK_PATH"
+	PON_CMD="$SCRIPTS_DIR/mutect_panel.sh $OUTPUT_DIR/variant_calling/variants_mutect/recalibration $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_mutect $OUTPUT_BAM_NAMES $CONTROL_NAMES $VCF_NAMES $KNOWN_SNPS $COSMIC"
+	PON_COMB_CMD="$SCRIPTS_DIR/mutect_panel_comb.sh $OUTPUT_DIR/variant_calling/variants_mutect/panel_control $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_mutect/panel_control $OUTPUT_PON_NAME"
+	CALLING_CMD="$SCRIPTS_DIR/mutect.sh $OUTPUT_DIR/Alignment/BAM $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_mutec $SAMPLE_NAMES $OUTPUT_BAM_NAMES $CONTROL_NAMES $CASE_NAMES $VCF_NAMES"
+	if [ "$USE_SGE" = 1 ];then
+	   calling_sge_array "$GATK_PREPROC_CMD" "$CALLING_ARGS" $sample_number $SUBJOBNAME "GATK_PREPROC"
+       jobid_gatkpre=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "GATK_PREPROC" | cut -d ':' -f2 )
+       PON_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid_gatkpre" 
+       calling_sge_array "$PON_CMD" "$PON_ARGS" $sample_number $SUBJOBNAME "PON_CREATION"
+       jobid_pon=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "PON_CREATION" | cut -d ':' -f2 ) 
+       PON_COMB_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid_pon"                           
+       calling_sge "$PON_COMB_CMD" "$PON_COMB_ARGS" $SUBJOBNAME "PON_COMB"
+       jobid_poncomb=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "PON_COMB" | cut -d ':' -f2 ) 
+       MUTECT_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid_poncomb"                           
+       calling_sge_array "$CALLING_CMD" "$MUTECT_ARGS" $sample_number $SUBJOBNAME "MUTECT_CALLING"
+       jobid_mutect=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "MUTECT_CALLING" | cut -d ':' -f2 ) 
+    else
+       calling "$PON_CMD" $sample_number
+       CALLING=${$PON_COMB_CMD $sample_number}
+       calling "$CALLING_CMD" $sample_number
+   fi
 fi

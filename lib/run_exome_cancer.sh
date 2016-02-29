@@ -146,15 +146,19 @@ realignedBamArray_list=$( echo ${realignedBamArray[@]} | tr " " ":" )
 $SCRIPTS_DIR/run_preprocessing.sh $TRIMMING $USE_SGE $INPUT_DIR $OUTPUT_DIR $THREADS $fastq_R1_list $fastq_R2_list $sample_count $SAMPLES $TRIM_ARGS $trimmomatic_version $TRIMMOMATIC_PATH $trimmedFastqArray_paired_R1_list $trimmedFastqArray_paired_R2_list $trimmedFastqArray_unpaired_R1_list $trimmedFastqArray_unpaired_R2_list
 
 # Execute MAPPING
-if [ $TRIMMING == "YES" ]; then
-    $SCRIPTS_DIR/run_mapping.sh $MAPPING $USE_SGE $OUTPUT_DIR $REF_PATH $THREADS $trimmedFastqArray_paired_R1_list $trimmedFastqArray_paired_R2_list $sample_count $SAMPLES $mappingArray_sam_list $mappingArray_bam_list $mappingArray_sorted_list $bamstatArray_pre_list $bamstatArray_post_list $duplicateBamArray_list $DUPLICATE_FILTER $PICARD_PATH $EXOME_ENRICHMENT $PLATFORM $MODEL $DATE_RUN $LIBRARY $SEQUENCING_CENTER $RUN_PLATFORM $mappingArray_rg_list
-else
-	$SCRIPTS_DIR/run_mapping.sh $MAPPING $USE_SGE $OUTPUT_DIR $REF_PATH $THREADS $fastq_R1_list $fastq_R2_list $sample_count $SAMPLES $mappingArray_sam_list $mappingArray_bam_list $mappingArray_sorted_list $bamstatArray_pre_list $bamstatArray_post_list $duplicateBamArray_list $DUPLICATE_FILTER $PICARD_PATH $EXOME_ENRICHMENT $PLATFORM $MODEL $DATE_RUN $LIBRARY $SEQUENCING_CENTER $RUN_PLATFORM $mappingArray_rg_list 
+if [ $MAPPING == "YES" ];then
+	if [ $TRIMMING == "YES" ]; then
+    	$SCRIPTS_DIR/run_mapping.sh $MAPPING $USE_SGE $OUTPUT_DIR $REF_PATH $THREADS $trimmedFastqArray_paired_R1_list $trimmedFastqArray_paired_R2_list $sample_count $SAMPLES $mappingArray_sam_list $mappingArray_bam_list $mappingArray_sorted_list $bamstatArray_pre_list $bamstatArray_post_list $duplicateBamArray_list $DUPLICATE_FILTER $PICARD_PATH $EXOME_ENRICHMENT $PLATFORM $MODEL $DATE_RUN $LIBRARY $SEQUENCING_CENTER $RUN_PLATFORM $mappingArray_rg_list
+	else
+		$SCRIPTS_DIR/run_mapping.sh $MAPPING $USE_SGE $OUTPUT_DIR $REF_PATH $THREADS $fastq_R1_list $fastq_R2_list $sample_count $SAMPLES $mappingArray_sam_list $mappingArray_bam_list $mappingArray_sorted_list $bamstatArray_pre_list $bamstatArray_post_list $duplicateBamArray_list $DUPLICATE_FILTER $PICARD_PATH $EXOME_ENRICHMENT $PLATFORM $MODEL $DATE_RUN $LIBRARY $SEQUENCING_CENTER $RUN_PLATFORM $mappingArray_rg_list 
+	fi
 fi
 
 # Execute variant Calling
-if [ $DUPLICATE_FILTER == "YES" ]; then
-	$SCRIPTS_DIR/run_variantCalling_cancer.sh $USE_SGE $VARIANT_CALLING $VARIANT_CALLER $DUPLICATE_FILTER $OUTPUT_DIR $REF_PATH $THREADS $SAMPLES $duplicateBamArray_list $EXOME_ENRICHMENT $CONTROL $CASE $vcfArray_list $STRELKA_CONFIG $pair_count
-else
-    $SCRIPTS_DIR/run_variantCalling_cancer.sh $USE_SGE $VARIANT_CALLING $VARIANT_CALLER $DUPLICATE_FILTER $OUTPUT_DIR $REF_PATH $THREADS $SAMPLES $mappingArray_sorted_list $EXOME_ENRICHMENT $CONTROL $CASE $vcfArray_list $STRELKA_CONFIG $pair_count
+if [ $VARIANT_CALLING == "YES" ];then
+	if [ $DUPLICATE_FILTER == "YES" ]; then
+		$SCRIPTS_DIR/run_variantCalling_cancer.sh $USE_SGE $VARIANT_CALLING $VARIANT_CALLER $DUPLICATE_FILTER $OUTPUT_DIR $REF_PATH $THREADS $SAMPLES $duplicateBamArray_list $EXOME_ENRICHMENT $CONTROL $CASE $vcfArray_list $STRELKA_CONFIG $pair_count
+	else
+    	$SCRIPTS_DIR/run_variantCalling_cancer.sh $USE_SGE $VARIANT_CALLING $VARIANT_CALLER $DUPLICATE_FILTER $OUTPUT_DIR $REF_PATH $THREADS $SAMPLES $mappingArray_sorted_list $EXOME_ENRICHMENT $CONTROL $CASE $vcfArray_list $STRELKA_CONFIG $pair_count
+	fi
 fi

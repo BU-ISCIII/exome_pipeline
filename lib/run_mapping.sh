@@ -55,8 +55,7 @@ fi
 MAPPING_CMD="$SCRIPTS_DIR/bwa.sh $DIR $THREADS $REF_PATH $OUTPUT_DIR/Alignment/SAM $FASTQ_R1_list $FASTQ_R2_list $SAMPLE_NAMES $OUTPUT_SAM_NAMES"  
 SAMTOBAM_CMD="$SCRIPTS_DIR/samTobam.sh $OUTPUT_DIR/Alignment/SAM $OUTPUT_DIR/Alignment/BAM $SAMPLE_NAMES $OUTPUT_SAM_NAMES $OUTPUT_BAM_NAMES $OUTPUT_BAM_SORTED_NAMES $OUTPUT_BAM_SORTED_RG_NAMES $PLATFORM $MODEL $DATE_RUN $LIBRARY $SEQUENCING_CENTER $RUN_PLATFORM $PICARD_PATH"
 
-if [ $MAPPING == "YES" ]; then                                                                                                                                                                                                                                                                                       
-  	if [ "$USE_SGE" = "1" ]; then
+if [ "$USE_SGE" = "1" ]; then
   		MAPPING=$( qsub $MAPPING_ARGS -t 1-$sample_number -N $JOBNAME.MAPPING $MAPPING_CMD)
      	jobid_mapping=$( echo $MAPPING | cut -d ' ' -f3 | cut -d '.' -f1 )                                                                                                                                                                                                                                    
      	echo -e "MAPPING:$jobid_mapping\n" >> $OUTPUT_DIR/logs/jobids.txt
@@ -66,15 +65,14 @@ if [ $MAPPING == "YES" ]; then
       	jobid_samtobam=$( echo $SAMTOBAM | cut -d ' ' -f3 | cut -d '.' -f1 )                                                                                                                                                                                                                                     
       	echo -e "SAMTOBAM:$jobid_samtobam\n" >> $OUTPUT_DIR/logs/jobids.txt
 
- 	else                                                                                                                                                                                                                                                                                                              
+else                                                                                                                                                                                                                                                                                                              
       	for count in `seq 1 $sample_number`                                                                                                                                                                                                                                                                           
       	do                                                                                                                                                                                                                                                                                                            
       		echo "Running mapping on sample $count"                                                                                                                                                                                                                                                               
       		MAPPING=$($MAPPING_CMD $count)
       		SAMTOBAM=$($SAMTOBAM_CMD $count)
      	done                                                                                                                                                                                                                                                                                                          
-    fi                                                                                                                                                                                                                                                                                                                
-fi
+fi                                                                                                                                                                                                                                                                                                                
 
 PICARD_CMD="$SCRIPTS_DIR/picard_duplicates.sh $OUTPUT_DIR/Alignment/BAM $SAMPLE_NAMES $OUTPUT_BAM_SORTED_RG_NAMES $OUTPUT_DUPLICATE_NAMES $PICARD_PATH"
 if [ $DUPLICATE_FILTER == "YES" ]; then                                                                                                                                                                                                                                                                                                         
@@ -90,7 +88,7 @@ if [ $DUPLICATE_FILTER == "YES" ]; then
        		PICARD=$($PICARD_CMD $count)                                                                                                                                                                                                                                                                                             
       	done                                                                                                                                                                                                                                                                                                                           
      fi                                                                                                                                                                                                                                                                                                                                 
- fi
+fi
 
  ## FASTQC                                                                                                                                                                      
  BAMUTIL_PREDUPLICATES="$SCRIPTS_DIR/bamutil.sh $OUTPUT_DIR/Alignment/BAM $SAMPLE_NAMES $OUTPUT_BAM_SORTED_RG_NAMES $BAMSTAT_PRE_NAMES $EXOME_ENRICHMENT"                                                   
