@@ -18,7 +18,7 @@ set -x
 
 ## Usage
 
-if [ $# != 19 -a "$use_sge" == "1" ]; then
+if [ $# != 21 -a "$use_sge" == "1" ]; then
     	echo "usage: ............"
     	exit
 fi
@@ -43,11 +43,13 @@ OUTPUT_SNPS_NAME_FIL=${11}
 OUTPUT_INDELS_NAME=${12}
 OUTPUT_INDELS_NAME_FIL=${13}
 OUTPUT_VCF_FIL_NAME=${14}
-OUTPUT_VCF_GTPOS=${15}
-OUTPUT_VCF_GTPOS_FIL=${16}
-OUTPUT_VCF_GTPOS_FIL_ANNOT=${17}
-GATK_PATH=${18}
-PED_FILE=${19}
+OUTPUT_VCF_PHASE_NAME=${15}
+OUTPUT_VCF_BACKED_NAME=${16}
+OUTPUT_VCF_GTPOS=${17}
+OUTPUT_VCF_GTPOS_FIL=${18}
+OUTPUT_VCF_GTPOS_FIL_ANNOT=${19}
+GATK_PATH=${20}
+PED_FILE=${21}
 
 mkdir -p $OUTPUT_DIR/variants
 echo $BAM_NAMES | tr ":" "\n" | awk -v prefix=$DIR_BAM '{print prefix "/" $0}' > $OUTPUT_DIR/bam.list
@@ -129,13 +131,32 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	   -o $OUTPUT_DIR/variants/$OUTPUT_VCF_FIL_NAME \
        -log $OUTPUT_DIR/$OUTPUT_VCF_NAME-CombineVCF.log
 
+echo -e "Calculate PhaseByTransmission"
+java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+		-T PhaseByTransmission \
+		-R $REF_PATH \
+		-ped $PED_FILE \
+		-V $OUTPUT_DIR/variants/$OUTPUT_VCF_FIL_NAME \
+		-o $OUTPUT_DIR/variants/$OUTPUT_VCF_PHASE_NAME \
+		-log $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME-PhaseByTransmission.log
+
+echo -e "Calculate ReadBackedPhasing"
+java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+		-T ReadBackedPhasing \
+		-R $REF_PATH \
+		-I $OUTPUT_DIR/bam.list \
+		--variant $OUTPUT_DIR/variants/$OUTPUT_VCF_PHASE_NAME \
+		-o $OUTPUT_DIR/variants/$OUTPUT_VCF_BACKED_NAME \
+		--phaseQualityThresh 20.0 \
+		-log $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME-ReadBackedPhasing.log
+
 echo -e "Genotype Refinement"
 java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-T CalculateGenotypePosteriors \
 	-R $REF_PATH \
 	--supporting $SNP_GOLD \
 	-ped $PED_FILE \
-	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_FIL_NAME \
+	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_BACKED_NAME \
 	-o $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS \
 	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-GTPosteriors.log
 
@@ -156,4 +177,3 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-ped $PED_FILE \
 	-o $OUTPUT_VCF_GTPOS_FIL_ANNOT \
 	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-GTPOSFILANNOT.log
-

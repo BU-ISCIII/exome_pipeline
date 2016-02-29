@@ -30,13 +30,15 @@ SNPS_FIL_NAME=${16}
 INDELS_NAME=${17}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 INDELS_FIL_NAME=${18}
 VCF_FIL_NAME=${19}
-VCF_GTPOS=${20}
-VCF_GTPOS_FIL=${21}
-VCF_GTPOS_FIL_ANNOT=${22}
-KNOWN_SNPS=${23}
-KNOWN_INDELS=${24}
-SNP_GOLD=${25}
-PED_FILE=${26}
+VCF_PHASE_NAME=${20}
+VCF_BACKED_NAME=${21}
+VCF_GTPOS=${22}
+VCF_GTPOS_FIL=${23}
+VCF_GTPOS_FIL_ANNOT=${24}
+KNOWN_SNPS=${25}
+KNOWN_INDELS=${26}
+SNP_GOLD=${27}
+PED_FILE=${28}
 
 ## Folder creation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 echo -e "Creating $OUTPUT_DIR/variant_calling"                                                                                                                                                                                                                                                                                                                                                                                                                                                         
@@ -52,7 +54,7 @@ fi
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 mkdir -p $OUTPUT_DIR/variant_calling/variants_gatk                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 PRECALLING_CMD="$SCRIPTS_DIR/gatk_preprocessing.sh $OUTPUT_DIR/Alignment/BAM $THREADS $REF_PATH $SAMPLE_NAMES $KNOWN_SNPS $KNOWN_INDELS $OUTPUT_BAM_NAMES $OUTPUT_DIR/variant_calling/variants_gatk $OUTPUT_BAM_REALIGNED_NAMES  $OUTPUT_BAM_RECALIBRATED_NAMES $GATK_PATH"                                                                                                                                                                                                                                                                                      
-CALLING_CMD="$SCRIPTS_DIR/gatk_diploid.sh $OUTPUT_DIR/variant_calling/variants_gatk/recalibration $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_gatk $KNOWN_SNPS $KNOWN_INDELS $SNP_GOLD $OUTPUT_BAM_RECALIBRATED_NAMES $VCF_NAMES $SNPS_NAME $SNPS_FIL_NAME $INDELS_NAME $INDELS_FIL_NAME $VCF_FIL_NAME $VCF_GTPOS $VCF_GTPOS_FIL $VCF_GTPOS_FIL_ANNOT $GATK_PATH $PED_FILE"      
+CALLING_CMD="$SCRIPTS_DIR/gatk_diploid.sh $OUTPUT_DIR/variant_calling/variants_gatk/recalibration $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_gatk $KNOWN_SNPS $KNOWN_INDELS $SNP_GOLD $OUTPUT_BAM_RECALIBRATED_NAMES $VCF_NAMES $SNPS_NAME $SNPS_FIL_NAME $INDELS_NAME $INDELS_FIL_NAME $VCF_FIL_NAME $VCF_PHASE_NAME $VCF_BACKED_NAME $VCF_GTPOS $VCF_GTPOS_FIL $VCF_GTPOS_FIL_ANNOT $GATK_PATH $PED_FILE"      
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 if [ $VARIANT_CALLING == "YES" ]; then                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
