@@ -65,7 +65,7 @@ sample_count=$(echo $SAMPLES | tr ":" "\n" | wc -l)
 ## SGE args
 if [ "$USE_SGE"="1" ]; then
   mkdir -p $OUTPUT_DIR/logs
-  export SGE_ARGS="-V -j y -b y -wd $OUTPUT_DIR/logs -m a -M $EMAIL"
+  export SGE_ARGS="-V -j y -b y -wd $OUTPUT_DIR/logs -m a -M $EMAIL -q all.q"
 fi
 
 # Collect fastq files
