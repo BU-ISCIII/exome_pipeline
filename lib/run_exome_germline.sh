@@ -119,6 +119,9 @@ vcfbackedArray_list=all_samples_ReadBackedPhasing.vcf
 vcfgtposArray_list=all_samples_gtpos.vcf
 vcfgtposfilArray_list=all_samples_gtpos_fil.vcf
 vcfgtposfilannotArray_list=all_samples_gtpos_fil.vcf
+vcffilbedArray_list=all_samples_gtpos_enrich.vcf
+vcfNovoArray_list=all_samples_gtpos_denovo.vcf
+vcfDoubleArray_list=all_samples_gtpos_doublehit.vcf
 
 fastq_R1_list=$( echo ${fastqArray_R1[@]} | tr " " ":" )
 fastq_R2_list=$( echo ${fastqArray_R2[@]} | tr " " ":" )
@@ -155,8 +158,8 @@ fi
 # Execute variant Calling
 if [ $VARIANT_CALLING == YES ]; then
 	if [ $DUPLICATE_FILTER == "YES" ]; then
-		$SCRIPTS_DIR/run_variantCalling_diploid.sh $USE_SGE $VARIANT_CALLING $DUPLICATE_FILTER $OUTPUT_DIR $REF_PATH $THREADS $SAMPLES $duplicateBamArray_list $EXOME_ENRICHMENT $vcfArray_list $sample_count $realignedBamArray_list $recalibratedBamArray_list $GATK_PATH $vcfsnpsArray_list $vcfsnpsfilArray_list $vcfindelsArray_list $vcfindelsfilArray_list $vcffilArray_list $vcfphaseArray_list $vcfbackedArray_list $vcfgtposArray_list $vcfgtposfilArray_list $vcfgtposfilannotArray_list $KNOWN_SNPS $KNOWN_INDELS $SNP_GOLD $PED_FILE
+		$SCRIPTS_DIR/run_variantCalling_diploid.sh $USE_SGE $VARIANT_CALLING $DUPLICATE_FILTER $OUTPUT_DIR $REF_PATH $THREADS $SAMPLES $duplicateBamArray_list $EXOME_ENRICHMENT $vcfArray_list $sample_count $realignedBamArray_list $recalibratedBamArray_list $GATK_PATH $vcfsnpsArray_list $vcfsnpsfilArray_list $vcfindelsArray_list $vcfindelsfilArray_list $vcffilArray_list $vcfphaseArray_list $vcfbackedArray_list $vcfgtposArray_list $vcfgtposfilArray_list $vcfgtposfilannotArray_list $KNOWN_SNPS $KNOWN_INDELS $SNP_GOLD $PED_FILE $vcffilbedArray_list $vcfNovoArray_list $vcfDoubleArray_list
 	else
- 		$SCRIPTS_DIR/run_variantCalling_diploid.sh $USE_SGE $VARIANT_CALLING $DUPLICATE_FILTER $OUTPUT_DIR $REF_PATH $THREADS $SAMPLES $mappingArray_rg_list $EXOME_ENRICHMENT $vcfArray_list $sample_count $realignedBamArray_list $recalibratedBamArray_list $GATK_PATH $vcfsnpsArray_list $vcfsnpsfilArray_list $vcfindelsArray_list $vcfindelsfilArray_list $vcffilArray_list $vcfphaseArray_list $vcfbackedArray_list $vcfgtposArray_list $vcfgtposfilArray_list $vcfgtposfilannotArray_list $KNOWN_SNPS $KNOWN_INDELS $SNP_GOLD $PED_FILE
+ 		$SCRIPTS_DIR/run_variantCalling_diploid.sh $USE_SGE $VARIANT_CALLING $DUPLICATE_FILTER $OUTPUT_DIR $REF_PATH $THREADS $SAMPLES $mappingArray_rg_list $EXOME_ENRICHMENT $vcfArray_list $sample_count $realignedBamArray_list $recalibratedBamArray_list $GATK_PATH $vcfsnpsArray_list $vcfsnpsfilArray_list $vcfindelsArray_list $vcfindelsfilArray_list $vcffilArray_list $vcfphaseArray_list $vcfbackedArray_list $vcfgtposArray_list $vcfgtposfilArray_list $vcfgtposfilannotArray_list $KNOWN_SNPS $KNOWN_INDELS $SNP_GOLD $PED_FILE $vcffilbedArray_list $vcfNovoArray_list $vcfDoubleArray_list 
 	fi
 fi
