@@ -172,8 +172,8 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-T VariantAnnotator \
 	-R $REF_PATH \
-	-V $OUTPUT_VCF_GTPOS_FIL \
+	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS_FIL \
 	-A PossibleDeNovo \
 	-ped $PED_FILE \
-	-o $OUTPUT_VCF_GTPOS_FIL_ANNOT \
+	-o $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS_FIL_ANNOT \
 	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-GTPOSFILANNOT.log
