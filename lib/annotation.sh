@@ -35,6 +35,7 @@ OUTPUT_DIR=$6
 DIR=$7
 REF_PATH=$8
 PEDFILE=$9
+KGGSEQ_PATH=${10}
 
 mkdir -p $OUTPUT_DIR/annotation
 
