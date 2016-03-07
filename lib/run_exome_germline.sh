@@ -119,10 +119,10 @@ vcfphaseArray_list=all_samples_PhaseByTransmission.vcf
 vcfbackedArray_list=all_samples_ReadBackedPhasing.vcf
 vcfgtposArray_list=all_samples_gtpos.vcf
 vcfgtposfilArray_list=all_samples_gtpos_fil.vcf
-vcfgtposfilannotArray_list=all_samples_gtpos_fil.vcf
-vcffilbedArray_list=all_samples_gtpos_enrich.vcf
-vcfNovoArray_list=all_samples_gtpos_denovo.vcf
-vcfDoubleArray_list=all_samples_gtpos_doublehit.vcf
+vcfgtposfilannotArray_list=all_samples_gtpos_fil_annot.vcf
+vcffilbedArray_list=all_samples_gtpos_fil_annot_enrich.vcf
+vcfNovoArray_list=all_samples_gtpos_fil_annot_denovo.vcf
+vcfDoubleArray_list=all_samples_gtpos_fil_annot_doublehit.vcf
 
 fastq_R1_list=$( echo ${fastqArray_R1[@]} | tr " " ":" )
 fastq_R2_list=$( echo ${fastqArray_R2[@]} | tr " " ":" )

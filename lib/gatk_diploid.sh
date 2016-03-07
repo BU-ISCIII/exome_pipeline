@@ -136,9 +136,10 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 		-T PhaseByTransmission \
 		-R $REF_PATH \
 		-ped $PED_FILE \
+		-pedValidationType SILENT \
 		-V $OUTPUT_DIR/variants/$OUTPUT_VCF_FIL_NAME \
 		-o $OUTPUT_DIR/variants/$OUTPUT_VCF_PHASE_NAME \
-		-log $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME-PhaseByTransmission.log
+		-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-PhaseByTransmission.log
 
 echo -e "Calculate ReadBackedPhasing"
 java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
@@ -148,7 +149,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 		--variant $OUTPUT_DIR/variants/$OUTPUT_VCF_PHASE_NAME \
 		-o $OUTPUT_DIR/variants/$OUTPUT_VCF_BACKED_NAME \
 		--phaseQualityThresh 20.0 \
-		-log $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME-ReadBackedPhasing.log
+		-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-ReadBackedPhasing.log
 
 echo -e "Genotype Refinement"
 java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
@@ -156,6 +157,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-R $REF_PATH \
 	--supporting $SNP_GOLD \
 	-ped $PED_FILE \
+	-pedValidationType SILENT \
 	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_BACKED_NAME \
 	-o $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS \
 	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-GTPosteriors.log
@@ -175,5 +177,6 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS_FIL \
 	-A PossibleDeNovo \
 	-ped $PED_FILE \
+	-pedValidationType SILENT \
 	-o $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS_FIL_ANNOT \
 	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-GTPOSFILANNOT.log

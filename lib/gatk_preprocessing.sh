@@ -65,7 +65,7 @@ if [ $KNOWN_INDELS == "NO" ];then
  		-o $OUTPUT_DIR/realignment/$BAM_NAME-IndelRealigner.intervals \
  		-nt $THREADS \
  		-S LENIENT \
- 		-log $OUTPUT_DIR/realignment/$BAM_NAME-targetCreator.log
+ 		-log $OUTPUT_DIR/$BAM_NAME-targetCreator.log
                                                                                        
 	java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
  		-T IndelRealigner \
@@ -86,7 +86,7 @@ else
     	-o $OUTPUT_DIR/realignment/$BAM_NAME-IndelRealigner.intervals \
     	-nt $THREADS \
     	-S LENIENT \
-    	-log $OUTPUT_DIR/realignment/$BAM_NAME-targetCreator.log
+    	-log $OUTPUT_DIR/$BAM_NAME-targetCreator.log
                                                                                         
     java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
     	-T IndelRealigner \
@@ -118,7 +118,7 @@ if [ $KNOWN_SNPS != "NO" ];then
       	-o $OUTPUT_DIR/recalibration/$BAM_NAME-recal1_data.grp \
  	  	-nct $THREADS \
  	  	-S LENIENT \
- 	  	-log $OUTPUT_DIR/gatk_trio/$BAM_NAME-recal.log
+ 	  	-log $OUTPUT_DIR/$BAM_NAME-recal.log
                                                                                        
 	java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
     	-T BaseRecalibrator \
