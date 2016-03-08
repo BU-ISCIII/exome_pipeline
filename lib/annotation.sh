@@ -17,7 +17,7 @@ set -u
 
 ## Usage
 
-if [ $# != 10 ]; then
+if [ $# != 11 ]; then
    	echo "usage: ............"
    	exit
 fi
@@ -36,6 +36,7 @@ DIR=$7
 REF_PATH=$8
 PEDFILE=$9
 KGGSEQ_PATH=${10}
+GATK_PATH=${11}
 
 mkdir -p $OUTPUT_DIR/annotation
 
