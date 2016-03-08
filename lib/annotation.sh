@@ -17,7 +17,7 @@ set -u
 
 ## Usage
 
-if [ $# != 9 ]; then
+if [ $# != 10 ]; then
    	echo "usage: ............"
    	exit
 fi
