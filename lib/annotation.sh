@@ -46,11 +46,12 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-T VariantsToTable \
 	-R $REF_PATH \
 	-V $OUTPUT_DIR/annotation/$VCFFIL \
-	-F CHROM -F POS -F ID -F QUAL -F AC -F AF -F AN -F BaseQRankSum -F ClippingRankSum -F DB \
+	-F CHROM -F POS -F FILTER -F ID -F QUAL -F AC -F AF -F AN -F BaseQRankSum -F ClippingRankSum -F DB \
 	-F DP -F DS -F FS -F MLEAC -F MLEAF -F MQ \
 	-F MQRankSum -F PG -F PhasingInconsistent -F hiConfDeNovo -F loConfDeNovo \
 	-F set -F SOR -F ReadPosRankSum -F QD -GF GT -GF GQ -GF AD -GF DP \
 	-GF FT -GF HP -GF JL -GF PL -GF PP -GF PQ -GF TP \
+	--allowMissingData --showFiltered \
 	-o $OUTPUT_DIR/annotation/vcf_merge.vcf
 
 java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
@@ -65,7 +66,7 @@ java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 	--rare-allele-freq 0.005 \
 	--mendel-causing-predict all \
 	--omim-annot \
-	--out $OUTPUT_DIR/annotation/$VCFNOVO
+	--out $OUTPUT_DIR/annotation/$VCFDOUBLEHIT
 
 java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 	-buildver hg19 \
@@ -80,4 +81,4 @@ java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 	--rare-allele-freq 0.005 \
 	--mendel-causing-predict all \
 	--omim-annot \
-	--out $OUTPUT_DIR/annotation/$VCFDOUBLEHIT
+	--out $OUTPUT_DIR/annotation/$VCFNOVO
