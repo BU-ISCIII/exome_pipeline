@@ -57,6 +57,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 	-buildver hg19 \
 	--no-lib-check \
+	--disable-resource-update \
 	--vcf-file $OUTPUT_DIR/annotation/$VCFFIL \
 	--ped-file $PEDFILE \
 	--double-hit-gene-trio-filter \
@@ -72,6 +73,7 @@ java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 	-buildver hg19 \
 	--no-lib-check \
+	--disable-resource-update \
 	--vcf-file $VCFFIL \
 	--ped-file $PEDFILE \
 	--genotype-filter 4,7 \
