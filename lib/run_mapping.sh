@@ -47,7 +47,7 @@ jobid_trimmomatic=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "TRIMMOMATIC" | cu
 
 if [ -d $OUTPUT_DIR/QC/trimmomatic ]; then
 	DIR=$OUTPUT_DIR/QC/trimmomatic
-	MAPPING_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid ${jobid_trimmomatic}"
+	MAPPING_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid ${jobid_trimmomatic}"
 else
   	DIR=$OUTPUT_DIR/raw
 fi

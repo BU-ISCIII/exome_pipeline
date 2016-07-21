@@ -42,7 +42,7 @@ TRIMMING_CMD="$SCRIPTS_DIR/trimmomatic.sh $INPUT_DIR $OUTPUT_DIR $sample_names $
 if [ $TRIMMING == "YES" ]; then
 	mkdir -p $OUTPUT_DIR/QC/trimmomatic
  	if [ "$USE_SGE" = "1" ]; then                                                                                           
- 		TRIMMOMATIC=$( qsub $SGE_ARGS -pe orte $THREADS -t 1-$sample_number -N $JOBNAME.TRIMMOMATIC $TRIMMING_CMD)                                 
+ 		TRIMMOMATIC=$( qsub $SGE_ARGS -pe bioinf $THREADS -t 1-$sample_number -N $JOBNAME.TRIMMOMATIC $TRIMMING_CMD)                                 
     	jobid_trimmomatic=$( echo $TRIMMOMATIC | cut -d ' ' -f3 | cut -d '.' -f1 )                                                    
     	echo -e "TRIMMOMATIC:$jobid_trimmomatic\n" >> $OUTPUT_DIR/logs/jobids.txt
 	else                                                                                                                    
@@ -59,11 +59,11 @@ FASTQC_PRETRIMMING="$SCRIPTS_DIR/fastqc.sh $OUTPUT_DIR/raw $OUTPUT_DIR $sample_n
 FASTQC_POSTRIMMING="$SCRIPTS_DIR/fastqc.sh $OUTPUT_DIR/QC/trimmomatic $OUTPUT_DIR $sample_names $trimmedFastqArray_paired_R1_list $trimmedFastqArray_paired_R2_list $THREADS" 
 
 if [ "$USE_SGE" = "1" ]; then
-	FASTQC_PRE=$( qsub $SGE_ARGS -pe orte $THREADS -t 1-$sample_number -N $JOBNAME.FASTQ_PRE $FASTQC_PRETRIMMING)
+	FASTQC_PRE=$( qsub $SGE_ARGS -pe bioinf $THREADS -t 1-$sample_number -N $JOBNAME.FASTQ_PRE $FASTQC_PRETRIMMING)
     jobid_fastqc_pre=$( echo $FASTQC_PRE | cut -d ' ' -f3 | cut -d '.' -f1 )
 	echo -e "FASTQC_PRE:$jobid_fastqc_pre\n" >> $OUTPUT_DIR/logs/jobids.txt 
 	if [ $TRIMMING == "YES" ]; then
-		FASTQC_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid_trimmomatic"
+		FASTQC_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid_trimmomatic"
 		FASTQC_POST=$( qsub $FASTQC_ARGS -t 1-$sample_number -N $JOBNAME.FASTQ_POST $FASTQC_POSTRIMMING)
 		jobid_fastqc_post=$( echo $FASTQC_POST | cut -d ' ' -f3 | cut -d '.' -f1 ) 
  		echo -e "FASTQC_POST:$jobid_fastqc_post\n" >> $OUTPUT_DIR/logs/jobids.txt  
