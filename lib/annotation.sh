@@ -58,6 +58,7 @@ java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 	-buildver hg19 \
 	--no-lib-check \
 	--disable-resource-update \
+	--force-gty-unphased \
 	--vcf-file $OUTPUT_DIR/annotation/$VCFFIL \
 	--ped-file $PEDFILE \
 	--double-hit-gene-trio-filter \
@@ -74,7 +75,8 @@ java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 	-buildver hg19 \
 	--no-lib-check \
 	--disable-resource-update \
-	--vcf-file $VCFFIL \
+	--force-gty-unphased \
+	--vcf-file $OUTPUT_DIR/annotation/$VCFFIL \
 	--ped-file $PEDFILE \
 	--genotype-filter 4,7 \
 	--ignore-homo \

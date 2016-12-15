@@ -38,10 +38,10 @@ mkdir -p $OUTPUT_DIR/variant_calling
 
 if [ "$USE_SGE" = "1" -a $DUPLICATES == "YES" ]; then
  	jobid=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "PICARD" | cut -d ':' -f2 )
- 	PRECALLING_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid"
+ 	PRECALLING_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid"
 else
  	jobid=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "TRIMMOMATIC" | cut -d ':' -f2 )
- 	PRECALLING_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid"
+ 	PRECALLING_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid"
                                                                                                                                                                                                                                                                                                                                                                                                   
 fi
 

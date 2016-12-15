@@ -53,10 +53,10 @@ mkdir -p $OUTPUT_DIR/variant_calling
 
 if [ $DUPLICATES == "YES" ]; then
 	jobid=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "PICARD" | cut -d ':' -f2 )
-	CALLING_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid"
+	CALLING_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid"
 else
 	jobid=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "TRIMMOMATIC" | cut -d ':' -f2 )
-	CALLING_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid"
+	CALLING_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid"
 fi
 
 if [ $VARIANT_CALLING == "YES" ];then
@@ -81,13 +81,13 @@ if [ $VARIANT_CALLER == "MUTECT" ];then
 	if [ "$USE_SGE" = 1 ];then
 	   calling_sge_array "$GATK_PREPROC_CMD" "$CALLING_ARGS" $sample_number $SUBJOBNAME "GATK_PREPROC"
        jobid_gatkpre=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "GATK_PREPROC" | cut -d ':' -f2 )
-       PON_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid_gatkpre" 
+       PON_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid_gatkpre" 
        calling_sge_array "$PON_CMD" "$PON_ARGS" $sample_number $SUBJOBNAME "PON_CREATION"
        jobid_pon=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "PON_CREATION" | cut -d ':' -f2 ) 
-       PON_COMB_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid_pon"                           
+       PON_COMB_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid_pon"                           
        calling_sge "$PON_COMB_CMD" "$PON_COMB_ARGS" $SUBJOBNAME "PON_COMB"
        jobid_poncomb=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "PON_COMB" | cut -d ':' -f2 ) 
-       MUTECT_ARGS="${SGE_ARGS} -pe orte $THREADS -hold_jid $jobid_poncomb"                           
+       MUTECT_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid_poncomb"                           
        calling_sge_array "$CALLING_CMD" "$MUTECT_ARGS" $sample_number $SUBJOBNAME "MUTECT_CALLING"
        jobid_mutect=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "MUTECT_CALLING" | cut -d ':' -f2 ) 
     else

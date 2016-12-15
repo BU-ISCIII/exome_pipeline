@@ -63,7 +63,7 @@ ANNOTATION_CMD="$SCRIPTS_DIR/annotation.sh $VCF_GTPOS_FIL_ANNOT $EXOME_ENRICHMEN
 
 if [ $VARIANT_CALLING == "YES" ]; then
  		if [ "$USE_SGE" = "1" ]; then
-            PRECALLING=$( qsub $PRECALLING_ARGS -t 1-$sample_number -N $JOBNAME.CALLING $PRECALLING_CMD)
+            #PRECALLING=$( qsub $PRECALLING_ARGS -t 1-$sample_number -N $JOBNAME.CALLING $PRECALLING_CMD)
      		jobid_precalling=$( echo $PRECALLING | cut -d ' ' -f3 | cut -d '.' -f1 )
      		CALLING_ARGS="${SGE_ARGS} -hold_jid $jobid_precalling"
      		CALLING=$( qsub $CALLING_ARGS -N $JOBNAME.CALLING $CALLING_CMD)
