@@ -2,10 +2,7 @@
 ###### Analysis Exome Workflow - Readme ######													
 ##############################################
 
-./test directorio con datos de prueba para testar el funcionamiento del suite
-./lib scripts para lanzar cada uno de los pasos del análisis
-./requisites directorio con programas externos precompilados.
-./etc ejemplos de archivos de configuración
-./doc guías de usuario y changelog de las distintas versiones del pipeline.
-configure.pl ejecutable al que se le pasa como argumento UserConfig.txt para generar el archivo de configuración para bash y el ejecutable que lanzará todos los procesos seleccionados en el archivo de configuración.
-
+./lib independent scripts
+./requisites precompiled software 
+./etc config files examples
+./doc userguide and changelog
