@@ -3,6 +3,5 @@
 ##############################################
 
 ./lib independent scripts
-./requisites precompiled software 
 ./etc config files examples
 ./doc userguide and changelog
