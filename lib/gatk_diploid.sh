@@ -54,19 +54,18 @@ PED_FILE=${21}
 mkdir -p $OUTPUT_DIR/variants
 echo $BAM_NAMES | tr ":" "\n" | awk -v prefix=$DIR_BAM '{print prefix "/" $0}' > $OUTPUT_DIR/bam.list
 
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
        -T HaplotypeCaller \
        -R $REF_PATH \
        -I $OUTPUT_DIR/bam.list \
        -o $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME \
        --dbsnp $KNOWN_SNPS \
-       -ped $PED_FILE \
        -stand_call_conf 30.0 \
        -stand_emit_conf 10.0 \
        -S LENIENT \
        -log $OUTPUT_DIR/$OUTPUT_VCF_NAME-HaplotypeCaller.log
-
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+ #-ped $PED_FILE \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
        -R $REF_PATH \
        -T SelectVariants \
        -V $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME \
@@ -77,7 +76,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
        -log $OUTPUT_DIR/$OUTPUT_VCF_NAME-selectSNP.log
 
 
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
  	-R $REF_PATH \
  	-T VariantFiltration \
  	-V $OUTPUT_DIR/variants/$OUTPUT_SNPS_NAME \
@@ -101,7 +100,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
  	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-filterSNPs.log
 
 echo -e "Select and Filter Indels"
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
  	-R $REF_PATH \
  	-T SelectVariants \
  	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME \
@@ -111,7 +110,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
  	-S LENIENT \
  	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-selectIndels.log
 
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
  	-T VariantFiltration \
  	-R $REF_PATH \
  	-V $OUTPUT_DIR/variants/$OUTPUT_INDELS_NAME \
@@ -122,7 +121,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
  	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-filterIndels.log
 
 echo -e "Combine snps and indels vcf"
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
        -R $REF_PATH \
        -T  CombineVariants \
 	   --variant $OUTPUT_DIR/variants/$OUTPUT_SNPS_NAME_FIL \
@@ -132,7 +131,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
        -log $OUTPUT_DIR/$OUTPUT_VCF_NAME-CombineVCF.log
 
 echo -e "Calculate PhaseByTransmission"
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 		-T PhaseByTransmission \
 		-R $REF_PATH \
 		-ped $PED_FILE \
@@ -140,9 +139,9 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 		-V $OUTPUT_DIR/variants/$OUTPUT_VCF_FIL_NAME \
 		-o $OUTPUT_DIR/variants/$OUTPUT_VCF_PHASE_NAME \
 		-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-PhaseByTransmission.log
-
+#
 echo -e "Calculate ReadBackedPhasing"
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 		-T ReadBackedPhasing \
 		-R $REF_PATH \
 		-I $OUTPUT_DIR/bam.list \
@@ -150,9 +149,9 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 		-o $OUTPUT_DIR/variants/$OUTPUT_VCF_BACKED_NAME \
 		--phaseQualityThresh 20.0 \
 		-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-ReadBackedPhasing.log
-
+#
 echo -e "Genotype Refinement"
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-T CalculateGenotypePosteriors \
 	-R $REF_PATH \
 	--supporting $SNP_GOLD \
@@ -161,8 +160,8 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_BACKED_NAME \
 	-o $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS \
 	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-GTPosteriors.log
-
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+#
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-T VariantFiltration \
 	-R $REF_PATH \
 	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS \
@@ -170,8 +169,8 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-G_filterName "lowGQ" \
 	-o $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS_FIL \
 	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-GTPOSFIL.log
-
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+#
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-T VariantAnnotator \
 	-R $REF_PATH \
 	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_GTPOS_FIL \

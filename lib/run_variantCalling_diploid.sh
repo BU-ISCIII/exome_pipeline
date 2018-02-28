@@ -50,10 +50,10 @@ mkdir -p $OUTPUT_DIR/variant_calling
 
 if [ "$USE_SGE" = "1" -a $DUPLICATES == "YES" ]; then
   	jobid=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "PICARD" | cut -d ':' -f2 )
-  	PRECALLING_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid"
+  	PRECALLING_ARGS="${SGE_ARGS} -pe openmp $THREADS -hold_jid $jobid"
 else
   	jobid=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "TRIMMOMATIC" | cut -d ':' -f2 )
-  	PRECALLING_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid $jobid"
+  	PRECALLING_ARGS="${SGE_ARGS} -pe openmp $THREADS -hold_jid $jobid"
 fi
 
 mkdir -p $OUTPUT_DIR/variant_calling/variants_gatk
@@ -63,16 +63,16 @@ ANNOTATION_CMD="$SCRIPTS_DIR/annotation.sh $VCF_GTPOS_FIL_ANNOT $EXOME_ENRICHMEN
 
 if [ $VARIANT_CALLING == "YES" ]; then
  		if [ "$USE_SGE" = "1" ]; then
-            #PRECALLING=$( qsub $PRECALLING_ARGS -t 1-$sample_number -N $JOBNAME.CALLING $PRECALLING_CMD)
+            PRECALLING=$( qsub $PRECALLING_ARGS -t 1-$sample_number -N $JOBNAME.CALLING $PRECALLING_CMD)
      		jobid_precalling=$( echo $PRECALLING | cut -d ' ' -f3 | cut -d '.' -f1 )
-     		CALLING_ARGS="${SGE_ARGS} -hold_jid $jobid_precalling"
+     		CALLING_ARGS="${SGE_ARGS} -l h_vmem=40g -hold_jid $jobid_precalling"
      		CALLING=$( qsub $CALLING_ARGS -N $JOBNAME.CALLING $CALLING_CMD)
         	jobid_calling=$( echo $CALLING | cut -d ' ' -f3 | cut -d '.' -f1 )
-			ANNOTATION_ARGS="${SGE_ARGS} -hold_jid $jobid_calling"
+			ANNOTATION_ARGS="${SGE_ARGS} -l h_vmem=40g -hold_jid $jobid_calling"
 			ANNOTATION=$( qsub $ANNOTATION_ARGS -N $JOBNAME.ANNOTATION $ANNOTATION_CMD)
-        	jobid_annotation=$( echo $ANNOTATION | cut -d ' ' -f3 | cut -d '.' -f1 ) 
+        	jobid_annotation=$( echo $ANNOTATION | cut -d ' ' -f3 | cut -d '.' -f1 )
         	echo -e "Variant Calling:$jobid_precalling - $jobid_calling \n" >> $OUTPUT_DIR/logs/jobids.txt
-            echo -e "Annotation:$jobid_annotation \n" >> $OUTPUT_DIR/logs/jobids.txt 
+            echo -e "Annotation:$jobid_annotation \n" >> $OUTPUT_DIR/logs/jobids.txt
  		else
          	for count in `seq 1 $sample_number`
          	do

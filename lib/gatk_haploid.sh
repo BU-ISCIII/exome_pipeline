@@ -47,17 +47,16 @@ GATK_PATH=${13}
 mkdir -p $OUTPUT_DIR/variants
 echo $BAM_NAMES | tr ":" "\n" | awk -v prefix=$DIR_BAM '{print prefix "/" $0}' > $OUTPUT_DIR/bam.list
 
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
-      -T HaplotypeCaller \
-      -R $REF_PATH \
-      -I $OUTPUT_DIR/bam.list \
-      -o $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME \
-      -stand_call_conf 30.0 \
-      -stand_emit_conf 10.0 \
-      -ploidy 1 \
-      -S LENIENT \
-      -log $OUTPUT_DIR/$OUTPUT_VCF_NAME-HaplotypeCaller.log
-
+# java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+#       -T HaplotypeCaller \
+#       -R $REF_PATH \
+#       -I $OUTPUT_DIR/bam.list \
+#       -o $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME \
+#       -stand_call_conf 30.0 \
+#       -stand_emit_conf 10.0 \
+#       -S LENIENT \
+#       -log $OUTPUT_DIR/$OUTPUT_VCF_NAME-HaplotypeCaller.log
+ #-ploidy 1 \ 
 java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
       -R $REF_PATH \
       -T SelectVariants \

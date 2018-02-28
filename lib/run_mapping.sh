@@ -47,7 +47,7 @@ jobid_trimmomatic=$(cat $OUTPUT_DIR/logs/jobids.txt | grep -w "TRIMMOMATIC" | cu
 
 if [ -d $OUTPUT_DIR/QC/trimmomatic ]; then
 	DIR=$OUTPUT_DIR/QC/trimmomatic
-	MAPPING_ARGS="${SGE_ARGS} -pe bioinf $THREADS -hold_jid ${jobid_trimmomatic}"
+	MAPPING_ARGS="${SGE_ARGS} -pe openmp $THREADS -hold_jid ${jobid_trimmomatic}"
 else
   	DIR=$OUTPUT_DIR/raw
 fi
@@ -60,7 +60,7 @@ if [ "$USE_SGE" = "1" ]; then
      	jobid_mapping=$( echo $MAPPING | cut -d ' ' -f3 | cut -d '.' -f1 )                                                                                                                                                                                                                                    
      	echo -e "MAPPING:$jobid_mapping\n" >> $OUTPUT_DIR/logs/jobids.txt
 
-  		SAMTOBAM_ARGS="$SGE_ARGS -hold_jid $jobid_mapping"
+  		SAMTOBAM_ARGS="$SGE_ARGS -l h_vmem=40g -hold_jid $jobid_mapping"
   		SAMTOBAM=$( qsub $SAMTOBAM_ARGS -t 1-$sample_number -N $JOBNAME.SAMTOBAM $SAMTOBAM_CMD) 
       	jobid_samtobam=$( echo $SAMTOBAM | cut -d ' ' -f3 | cut -d '.' -f1 )                                                                                                                                                                                                                                     
       	echo -e "SAMTOBAM:$jobid_samtobam\n" >> $OUTPUT_DIR/logs/jobids.txt
@@ -77,7 +77,7 @@ fi
 PICARD_CMD="$SCRIPTS_DIR/picard_duplicates.sh $OUTPUT_DIR/Alignment/BAM $SAMPLE_NAMES $OUTPUT_BAM_SORTED_RG_NAMES $OUTPUT_DUPLICATE_NAMES $PICARD_PATH"
 if [ $DUPLICATE_FILTER == "YES" ]; then                                                                                                                                                                                                                                                                                                         
    	if [ "$USE_SGE" = "1" ]; then                                                                                                                                                                                                                                                                                                      
-   		PICARD_ARGS="$SGE_ARGS -hold_jid $jobid_samtobam"
+   		PICARD_ARGS="$SGE_ARGS -l h_vmem=40g -hold_jid $jobid_samtobam"
    		PICARD=$( qsub $PICARD_ARGS -t 1-$sample_number -N $JOBNAME.PICARD $PICARD_CMD)                                                                                                                                                                                                                                                
       	jobid_picard=$( echo $PICARD | cut -d ' ' -f3 | cut -d '.' -f1 )                                                                                                                                                                                                                                                             
       	echo -e "PICARD:$jobid_picard\n" >> $OUTPUT_DIR/logs/jobids.txt

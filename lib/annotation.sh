@@ -42,7 +42,7 @@ mkdir -p $OUTPUT_DIR/annotation
 
 bedtools intersect -header -a $DIR/$VCFILE -b $BEDFILE -wa > $OUTPUT_DIR/annotation/$VCFFIL
 
-java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	-T VariantsToTable \
 	-R $REF_PATH \
 	-V $OUTPUT_DIR/annotation/$VCFFIL \
@@ -54,7 +54,7 @@ java -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 	--allowMissingData --showFiltered \
 	-o $OUTPUT_DIR/annotation/vcf_merge.vcf
 
-java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
+java -XX:ParallelGCThreads=$NSLOTS -jar $KGGSEQ_PATH/kggseq.jar $JAVA_RAM \
 	-buildver hg19 \
 	--no-lib-check \
 	--disable-resource-update \
@@ -71,7 +71,7 @@ java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
 	--omim-annot \
 	--out $OUTPUT_DIR/annotation/$VCFDOUBLEHIT
 
-java -jar $KGGSEQ_PATH/kggseq.jar -Xmx24G \
+java -XX:ParallelGCThreads=$NSLOTS -jar $KGGSEQ_PATH/kggseq.jar $JAVA_RAM \
 	-buildver hg19 \
 	--no-lib-check \
 	--disable-resource-update \
