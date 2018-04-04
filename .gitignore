@@ -1,1 +1,2 @@
-test
+# Omit big test files
+test/
