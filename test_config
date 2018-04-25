@@ -1,0 +1,68 @@
+## RunInfo
+AUTHOR=smonzon
+DATE=20171122
+MAIL=sara.monzon.fdz@gmail.com
+
+DATE_RUN=20171031
+LIBRARY=TRUSEQILLUMINA
+SEQUENCING_CENTER=ISCIII
+PLATFORM=ILLUMINA
+MODEL=NEXTSEQ
+RUN_PLATFORM=NS
+
+SEQ_TYPE=PE
+PREPROCESSING=YES
+TRIMMING=YES
+MAPPING_STEP=YES
+MAPPING=BWA
+DUPLICATE_FILTER=YES
+VARIANT_CALLING=YES
+
+## System variables
+JAVA_RAM=-Xmx20g
+THREADS=10
+SCRIPTS_DIR=/processing_Data/bioinformatics/pipelines/exome_pipeline/lib
+TEMP_DIR=/processing_Data/bioinformatics/tmp
+
+## sge variables
+USE_SGE=1
+
+## INPUT VARIABLES
+INPUT_DIR=/processing_Data/bioinformatics/pipelines/exome_pipeline/test/RAW/trio
+
+# Sample info
+
+SAMPLES=madre:padre:nino
+
+madre=madre_R1_PE.fastq	madre_R2_PE.fastq
+padre=padre_R1_PE.fastq	padre_R2_PE.fastq
+nino=nino_R1_PE.fastq	nino_R2_PE.fastq
+
+# Output dirs
+OUTPUT_DIR=/processing_Data/bioinformatics/pipelines/exome_pipeline/test/ANALYSIS
+
+## Reference Variables
+PED_FILE=/processing_Data/bioinformatics/pipelines/exome_pipeline/test/RAW/trio/pedfile.ped
+GENOME_REF=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/genome/human_g1k_v37.fasta
+EXOME_ENRICHMENT=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/RAW_NC/truseq-rapid-exome-targeted-regions-manifest-v1-2.chr_mod2.bed
+KNOWN_SNPS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/dbsnp_138.b37.vcf
+KNOWN_INDELS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_phase1.indels.b37.vcf
+SNP_GOLD=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_omni2.5.b37.vcf
+
+## Software variables
+# Fastqc
+
+# Trimmomatic
+trimmomatic_version=0.33
+TRIMMOMATIC_PATH= /opt/Trimmomatic/
+TRIM_ARGS=ILLUMINACLIP:/opt/Trimmomatic/adapters/TruSeq3-PE.fa:2:30:10_TRAILING:10_SLIDINGWINDOW:4:20_MINLEN:70
+
+# Picard
+PICARD_PATH=/opt/picard-tools/picard-tools-1.140
+PICARD_ARGS=ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT REMOVE_DUPLICATES=false
+
+# GATK
+GATK_PATH=/opt/gatk/gatk-3.4.46
+
+# KGGSEQ
+KGGSEQ_PATH=/processing_Data/bioinformatics/references/kggseq08
