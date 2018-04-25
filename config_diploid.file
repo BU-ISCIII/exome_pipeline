@@ -1,67 +1,69 @@
-
 ## RunInfo
 AUTHOR=smonzon
-DATE=
+DATE=20171122
 MAIL=sara.monzon.fdz@gmail.com
 
-DATE_RUN=20150902
-LIBRARY=NEXTERA
+DATE_RUN=20171031
+LIBRARY=TRUSEQILLUMINA
 SEQUENCING_CENTER=ISCIII
 PLATFORM=ILLUMINA
 MODEL=NEXTSEQ
-RUN_PLATFORM=NS500454
+RUN_PLATFORM=NS
 
 SEQ_TYPE=PE
+PREPROCESSING=YES
 TRIMMING=YES
-MAPPING=YES
+MAPPING_STEP=YES
+MAPPING=BWA
 DUPLICATE_FILTER=YES
 VARIANT_CALLING=YES
 
 ## System variables
-JAVA_RAM=-Xmx32g
+JAVA_RAM=-Xmx30g
 THREADS=10
-SCRIPTS_DIR=/home/smonzon/Documentos/desarrollo/exome_pipeline/lib
-TEMP_DIR=/home/smonzon/Documentos/desarrollo/TMP
+SCRIPTS_DIR=/home/smonzon/bioinfo_pipelines/lib
+TEMP_DIR=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/TMP/
 
 ## sge variables
-USE_SGE=0
+USE_SGE=1
 
 ## INPUT VARIABLES
-INPUT_DIR=/home/smonzon/Documentos/desarrollo/exome_pipeline/test/pruebas/RAW/cancer
+INPUT_DIR=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/RAW
 
 # Sample info
-SAMPLES=blood_S1:tumor_T1
+SAMPLES=ND0091:ND0092:ND0093:ND0094:ND0095
 
-blood_S1=prueba_S_R1_PE.fastq	prueba_S_R2_PE.fastq 
-tumor_T1=prueba_T_R1_PE.fastq	prueba_T_R2_PE.fastq
-#blood_S2=prueba_S2_R1_PE.fastq	prueba_S2_R2_PE.fastq
-#tumor_T2=prueba_T2_R1_PE.fastq	prueba_T2_R2_PE.fastq
+ND0091=ND0091_R1.fastq.gz	ND0091_R2.fastq.gz 
+ND0092=C9RJ2ACXX_8_F04ss_1.fastq.gz	C9RJ2ACXX_8_F04ss_2.fastq.gz	  
+ND0093=C9RJ2ACXX_8_E04ss_1.fastq.gz	C9RJ2ACXX_8_E04ss_2.fastq.gz   
+ND0094=C9RJ2ACXX_8_G04ss_1.fastq.gz	C9RJ2ACXX_8_G04ss_2.fastq.gz    
+ND0095=C9RJ2ACXX_8_H04ss_1.fastq.gz	C9RJ2ACXX_8_H04ss_2.fastq.gz     
 
 # Output dirs
-OUTPUT_DIR=/home/smonzon/Documentos/desarrollo/test_results
+OUTPUT_DIR=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/ANALYSIS/20171122_TRIO02601
 
 ## Reference Variables
-PED_FILE=
-GENOME_REF=/home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/genome/human_g1k_v37.fasta
-EXOME_ENRICHMENT=/home/smonzon/Documentos/proyectos/20130101_EWSAR/20130101_EWSAR_C/RAW/EXOMA/HUMAN_human.37_SeqCap_EZ_Exome_v3_capture_CRCh37.bed  
-KNOWN_SNPS=/home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/variants/20131208/dbsnp_138.b37.vcf
-KNOWN_INDELS=/home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/variants/20131208/1000G_phase1.indels.b37.vcf  
-SNP_GOLD=/home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/variants/20131208/1000G_omni2.5.b37.vcf 
+PED_FILE=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/DOC/familypedigri.ped
+GENOME_REF=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/genome/human_g1k_v37.fasta
+EXOME_ENRICHMENT=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/RAW/truseq-rapid-exome-targeted-regions-manifest-v1-2.chr_mod2.bed 
+KNOWN_SNPS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/dbsnp_138.b37.vcf
+KNOWN_INDELS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_phase1.indels.b37.vcf  
+SNP_GOLD=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_omni2.5.b37.vcf 
 
 ## Software variables
 # Fastqc
 
 # Trimmomatic
-trimmomatic_version=0.32
-TRIMMOMATIC_PATH=/opt/trimmomatic
-TRIM_ARGS=ILLUMINACLIP:/opt/trimmomatic/adapters/TruSeq3-PE.fa:2:30:10_TRAILING:10_SLIDINGWINDOW:4:15_MINLEN:70
+trimmomatic_version=0.33
+TRIMMOMATIC_PATH= /opt/Trimmomatic/
+TRIM_ARGS=ILLUMINACLIP:/opt/Trimmomatic/adapters/TruSeq3-PE.fa:2:30:10_TRAILING:10_SLIDINGWINDOW:4:20_MINLEN:70
 
 # Picard
-PICARD_PATH=/opt/picard
+PICARD_PATH=/opt/picard-tools/picard-tools-1.140
 PICARD_ARGS=ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT REMOVE_DUPLICATES=false
 
-# GATK_HAPLOID
-GATK_PATH=/opt/gatk
+# GATK
+GATK_PATH=/opt/gatk/gatk-3.4.46
 
-# KGGSEQ_PATH
-KGGSEQ_PATH=/opt/kggseq
+# KGGSEQ
+KGGSEQ_PATH=/processing_Data/bioinformatics/references/kggseq08

@@ -1,156 +1,68 @@
-#########################################################
-###### Analysis Exome Workflow - Configuration File #####											
-#########################################################
-Author: Monzon S.
-Version: 1.3
+## RunInfo
+AUTHOR=smonzon
+DATE=20171122
+MAIL=sara.monzon.fdz@gmail.com
 
--- General Parameters --
+DATE_RUN=20171031
+LIBRARY=TRUSEQILLUMINA
+SEQUENCING_CENTER=ISCIII
+PLATFORM=ILLUMINA
+MODEL=NEXTSEQ
+RUN_PLATFORM=NS
 
-- Installation directory.
+SEQ_TYPE=PE
+PREPROCESSING=YES
+TRIMMING=YES
+MAPPING_STEP=YES
+MAPPING=BWA
+DUPLICATE_FILTER=YES
+VARIANT_CALLING=YES
 
-installDir = /home/smonzon/Documentos/desarrollo/exome_pipeline
+## System variables
+JAVA_RAM=-Xmx20g
+THREADS=10
+SCRIPTS_DIR=/processing_Data/bioinformatics/pipelines/exome_pipeline/lib
+TEMP_DIR=/processing_Data/bioinformatics/tmp
 
-- Run parameters.
+## sge variables
+USE_SGE=1
 
-	· Select yes or no for preprocessing and alignment step. If alignment preprocessing is needed.
-		Prep_ref = no
-		Preprocessing = yes
-		Alignment = yes
+## INPUT VARIABLES
+INPUT_DIR=/processing_Data/bioinformatics/pipelines/exome_pipeline/test/RAW/trio
 
-	· Select the variant caller you would like to use. [Samtools, GATK,
-Strelka, VarScan or JointSNVMix]
+# Sample info
 
-		Postprocessing = Samtools
+SAMPLES=madre:padre:nino
 
-	· Select how many threads do you want to use on your computer (only
-some of the programs use multithreading). Script not
-	prepare for cluster running.
+madre=madre_R1_PE.fastq	madre_R2_PE.fastq
+padre=padre_R1_PE.fastq	padre_R2_PE.fastq
+nino=nino_R1_PE.fastq	nino_R2_PE.fastq
 
-		THREADS = 4
-		Control = S
-		Case = T
+# Output dirs
+OUTPUT_DIR=/processing_Data/bioinformatics/pipelines/exome_pipeline/test/ANALYSIS
 
-- Software and output paths. Please, select the executable paths of the
-  prerequisite software (more info in the user guide).
+## Reference Variables
+PED_FILE=/processing_Data/bioinformatics/pipelines/exome_pipeline/test/RAW/trio/pedfile.ped
+GENOME_REF=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/genome/human_g1k_v37.fasta
+EXOME_ENRICHMENT=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/RAW_NC/truseq-rapid-exome-targeted-regions-manifest-v1-2.chr_mod2.bed
+KNOWN_SNPS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/dbsnp_138.b37.vcf
+KNOWN_INDELS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_phase1.indels.b37.vcf
+SNP_GOLD=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_omni2.5.b37.vcf
 
-	BWA_PATH = /opt/bwa
-	SAMTOOLS_PATH = /opt/samtools 
-	STRELKA_INSTALL_DIR=/opt/strelka
+## Software variables
+# Fastqc
 
-	TEMP = test/temp
-	RESULTS_DIR =  /home/smonzon/Documentos/desarrollo/exome_pipeline/test/result_test
-	
+# Trimmomatic
+trimmomatic_version=0.33
+TRIMMOMATIC_PATH= /opt/Trimmomatic/
+TRIM_ARGS=ILLUMINACLIP:/opt/Trimmomatic/adapters/TruSeq3-PE.fa:2:30:10_TRAILING:10_SLIDINGWINDOW:4:20_MINLEN:70
 
-- Files paths (full paths!!). Select the paths of your data. Required: data_path and ref_path
-  always. Exome_enrichment for exome analysis and 1000 G files for gatk analysis.
+# Picard
+PICARD_PATH=/opt/picard-tools/picard-tools-1.140
+PICARD_ARGS=ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT REMOVE_DUPLICATES=false
 
-	· Path to your fastq files. More info for preparing the folder in the
-user guide.
+# GATK
+GATK_PATH=/opt/gatk/gatk-3.4.46
 
-		DATA_PATH = test/pruebas/RAW/cancer
-
-	· Path to your ped file.
-		PED_FILE = etc/triocaller.ped
-
-	· Path to your reference genome.
-
-		REF_PATH = /home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/genome/human_g1k_v37.fasta
-
-	· Path to bed file with the enrichment regions in your exome
-experiment.
-
-		EXOME_ENRICHMENT=etc/truseq_exome_targeted_regions.hg19.bed.chr
-
-	· Data files from the 1000 G project. More info for downloading this
-files in the user guide.
-
-		SNPS_hg19 = /home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/variants/20120605/dbsnp_135.b37.vcf
-		HAPMAP_33= /home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/variants/20120605/hapmap_3.3.b37.sites.vcf
-		OMNI_1000G= /home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/variants/20120605/1000G_omni2.5.b37.sites.vcf
-		INDELS_1000G = /home/smonzon/Documentos/reference/homo_sapiens/1000genomes_b37/variants/20120605/1000G_phase1.indels.b37.vcf
-
--- Specific Parameters --
-
-1. Preprocessing.
-
-1.1. Trimming and Filter parameters.
-
-	1.1.1 Trimming
-
-	- Number of bases to be trimmed from left end (5' end). Default: 0
-
-	leftTrimBases =  
-
-	- Number of bases to be trimmed from right end (3' end). Default: 0
-
-	rightTrimBases =
-
-	- Cut-off PHRED quality score for trimming reads from right end (3'
-	  end)
-	For eg.: -q 20, will trim bases having PHRED quality score less than
-20 at 3' end of the reads. 
-	Note: Quality trimming can be performed only if -l and -r are not
-used. Default: 0
-
-	qualCutOff= 
-
-	- Read length cut-off. Reads shorter than given length will be
-	  discarded. Default: -1 
- 
-	lenCutOff =
-
-	1.1.2. Filtering
-
-	- The cut-off value for percentage of read length that should be of
-	  given quality. Default: 70
-
-	cutOffReadLen4HQ =
-
-	- The cut-off value for PHRED quality score for high-quality
-	  filtering. Default: 20
-
-	cutOffQualScore =
-
-1.2. Alignment Options.
-
-	For mapping step bwa is used with default parameters for single and
-paired en reads. More info in the user 
-	guide.
-
-2. Variant Calling.
-
-2.1 Samtools
-
-	minMapQ = 40
-	minPhredQ = 30
-
-2.2 VarScan
-
-	Somatic Mutation Calling comparing control and tumor samples is
-performed with default parameters.
-
-2.3 GATK
-	
-	Use default options. See gatk.sh script for more information
-	java_ram = 24
-
-2.4 Strelka
-
-	It has its own config.file, you will found it in
-/etc/configStrelka.ini
-
-2.5 JointSNVMix
-
-	min_normal_depth = 5 
-	skip_size = 100 
-	min_tumour_depth = 5
-	model = snvmix2 
-	somatic_threshold = 0.2
-
-3. Variant Analysis: Variant Effect Predictor.This program needs the
-downloaded Ensembl database, look the user guide for
-instructions. Put here the directory where the DB is placed (usually
-/home/{user}/.vep)
-
-	cacheDir = /home/smonzon/.vep
-
+# KGGSEQ
+KGGSEQ_PATH=/processing_Data/bioinformatics/references/kggseq08

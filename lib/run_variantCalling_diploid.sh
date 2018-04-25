@@ -59,20 +59,29 @@ fi
 mkdir -p $OUTPUT_DIR/variant_calling/variants_gatk
 PRECALLING_CMD="$SCRIPTS_DIR/gatk_preprocessing.sh $OUTPUT_DIR/Alignment/BAM $THREADS $REF_PATH $SAMPLE_NAMES $KNOWN_SNPS $KNOWN_INDELS $OUTPUT_BAM_NAMES $OUTPUT_DIR/variant_calling/variants_gatk $OUTPUT_BAM_REALIGNED_NAMES  $OUTPUT_BAM_RECALIBRATED_NAMES $GATK_PATH"
 CALLING_CMD="$SCRIPTS_DIR/gatk_diploid.sh $OUTPUT_DIR/variant_calling/variants_gatk/recalibration $THREADS $REF_PATH $OUTPUT_DIR/variant_calling/variants_gatk $KNOWN_SNPS $KNOWN_INDELS $SNP_GOLD $OUTPUT_BAM_RECALIBRATED_NAMES $VCF_NAMES $SNPS_NAME $SNPS_FIL_NAME $INDELS_NAME $INDELS_FIL_NAME $VCF_FIL_NAME $VCF_PHASE_NAME $VCF_BACKED_NAME $VCF_GTPOS $VCF_GTPOS_FIL $VCF_GTPOS_FIL_ANNOT $GATK_PATH $PED_FILE"
-ANNOTATION_CMD="$SCRIPTS_DIR/annotation.sh $VCF_GTPOS_FIL_ANNOT $EXOME_ENRICHMENT $VCFFIL $VCFNOVO $VCFDOUBLEHIT $OUTPUT_DIR $OUTPUT_DIR/variant_calling/variants_gatk/variants $REF_PATH $PED_FILE $KGGSEQ_PATH $GATK_PATH"
+BEDFILTER_CMD="$SCRIPTS_DIR/bed_filter.sh $VCF_GTPOS_FIL_ANNOT $EXOME_ENRICHMENT $OUTPUT_DIR/variant_calling/variants_gatk/variants $VCFFIL $OUTPUT_DIR"
+ANNOTATION_CMD="$SCRIPTS_DIR/annotation.sh $VCF_GTPOS_FIL_ANNOT $VCFNOVO $VCFDOUBLEHIT 'vcf_merge.vcf' $OUTPUT_DIR/annotation $REF_PATH $PED_FILE $KGGSEQ_PATH $GATK_PATH $OUTPUT_DIR/variant_calling/variants_gatk/variants"
+ANNOTATIONBEDFILTER_CMD="$SCRIPTS_DIR/annotation.sh $VCFFIL $VCFNOVO $VCFDOUBLEHIT 'vcf_merge_enrich.vcf' $OUTPUT_DIR/annotation/bedfilter $REF_PATH $PED_FILE $KGGSEQ_PATH $GATK_PATH $OUTPUT_DIR/annotation/bedfilter"
 
 if [ $VARIANT_CALLING == "YES" ]; then
  		if [ "$USE_SGE" = "1" ]; then
             PRECALLING=$( qsub $PRECALLING_ARGS -t 1-$sample_number -N $JOBNAME.CALLING $PRECALLING_CMD)
      		jobid_precalling=$( echo $PRECALLING | cut -d ' ' -f3 | cut -d '.' -f1 )
-     		CALLING_ARGS="${SGE_ARGS} -l h_vmem=40g -hold_jid $jobid_precalling"
+     		CALLING_ARGS="${SGE_ARGS} -l h_vmem=30g -hold_jid $jobid_precalling"
      		CALLING=$( qsub $CALLING_ARGS -N $JOBNAME.CALLING $CALLING_CMD)
         	jobid_calling=$( echo $CALLING | cut -d ' ' -f3 | cut -d '.' -f1 )
-			ANNOTATION_ARGS="${SGE_ARGS} -l h_vmem=40g -hold_jid $jobid_calling"
+			BEDFILTER_ARGS="${SGE_ARGS} -hold_jid $jobid_calling"
+			BEDFILTER=$( qsub $BEDFILTER_ARGS -N $JOBNAME.BEDFILTER $BEDFILTER_CMD)
+        	jobid_bedfilter=$( echo $BEDFILTER | cut -d ' ' -f3 | cut -d '.' -f1 )
+			ANNOTATION_ARGS="${SGE_ARGS} -l h_vmem=30g -hold_jid $jobid_calling"
 			ANNOTATION=$( qsub $ANNOTATION_ARGS -N $JOBNAME.ANNOTATION $ANNOTATION_CMD)
         	jobid_annotation=$( echo $ANNOTATION | cut -d ' ' -f3 | cut -d '.' -f1 )
+			ANNOTATIONBEDFILTER_ARGS="${SGE_ARGS} -l h_vmem=30g -hold_jid $jobid_bedfilter"
+			ANNOTATIONBEDFILTER=$( qsub $ANNOTATIONBEDFILTER_ARGS -N $JOBNAME.ANNOTATIONBEDFILTER $ANNOTATIONBEDFILTER_CMD)
+        	jobid_annotationbed=$( echo $ANNOTATIONBEDFILTER | cut -d ' ' -f3 | cut -d '.' -f1 )
         	echo -e "Variant Calling:$jobid_precalling - $jobid_calling \n" >> $OUTPUT_DIR/logs/jobids.txt
             echo -e "Annotation:$jobid_annotation \n" >> $OUTPUT_DIR/logs/jobids.txt
+            echo -e "AnnotationBedFilter:$jobid_bedfilter \n" >> $OUTPUT_DIR/logs/jobids.txt
  		else
          	for count in `seq 1 $sample_number`
          	do
@@ -82,4 +91,4 @@ if [ $VARIANT_CALLING == "YES" ]; then
          	CALLING=$($CALLING_CMD)
 			ANNOTATION=$($ANNOTATION_CMD)
        fi
- fi
+fi
