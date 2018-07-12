@@ -1,4 +1,4 @@
-<img src="https://github.com/BU-ISCIII/exome_pipeline/blob/develop/doc/logo_bu_isciii.png" width = 300 height=100 />
+<img src="https://github.com/BU-ISCIII/exome_pipeline/blob/develop/doc/logo_bu_isciii.png" width = 350 height=80 />
 
 
 # Output description for Exome pipeline
