@@ -120,54 +120,121 @@ This workflow comprises three different steps:
        **NOTE:** BAM files are removed due to disk space issues. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
 
 2. **Variant Calling:**
+Variant calling is performed for all the samples obtaining a multivcf file. Vcf (variant calling format) describes the variants (positions different from genome reference) present in a group of samples and its genotype in each sample. 
+	1. **HaplotypeCaller:** this module is capable of calling SNPs and indels simultaneously via local de-novo assembly of haplotypes in an active region. In other words, whenever the program encounters a region showing signs of variation, it discards the existing mapping information and completely reassembles the reads in that region. This allows the HaplotypeCaller to be more accurate when calling regions that are traditionally difficult to call, for example when they contain different types of variants close to each other.
+		1. Define active regions: The program determines which regions of the genome it needs to operate on, based on the presence of significant evidence for variation.
+		2. Determine haplotypes by assembly of the active regions: For each ActiveRegion, the program builds a De Bruijn-like graph to reassemble the ActiveRegion, and identifies what are the possible haplotypes present in the data. The program then realigns each haplotype against the reference haplotype using the Smith-Waterman algorithm in order to identify potentially variant sites.
+		3. Determine likelihoods of the haplotypes given the read data: For each ActiveRegion, the program performs a pairwise alignment of each read against each haplotype using the PairHMM algorithm. This produces a matrix of likelihoods of haplotypes given the read data. These likelihoods are then marginalized to obtain the likelihoods of alleles for each potentially variant site given the read data.
+		4. Assign sample genotypes: For each potentially variant site, the program applies Bayes' rule, using the likelihoods of alleles given the read data to calculate the likelihoods of each genotype per sample given the read data observed for that sample. The most likely genotype is then assigned to the samples.
+	
+	2. **HardFiltering:** quality filtering of variants following GATK best practices:
+		- MQ < 40. RMSMappingQuality. This is the Root Mean Square of the mapping quality of the reads across all samples.
+		- DP <5. LowCoverage
+		- QD <2.0. LowQD. This is the variant confidence (from the QUAL field) divided by the unfiltered depth of non-reference samples.
+		- FS >60.0. p-value StrandBias. Phred-scaled p-value using Fisher’s Exact Test to detect strand bias (the variation being seen on only the forward or only the reverse strand) in the reads. More bias is indicative of false positive calls
+		- MQRankSum < -12.5. MappingQualityRankSumTest. This is the u-based z-approximation from the Mann-Whitney Rank Sum Test for mapping qualities (reads with ref bases vs. those with the alternate allele). Note that the mapping quality rank sum test can not be calculated for sites without a mixture of reads showing both the reference and alternate alleles, i.e. this will only be applied to heterozygous calls.
+		- ReadPosRankSum < -8.0. VariantReadPosEnd. This is the u-based z-approximation from the Mann-Whitney Rank Sum Test for the distance from the end of the read for reads with the alternate allele. If the alternate allele is only seen near the ends of reads, this is indicative of error. Note that the read position rank sum test cannot be calculated for sites without a mixture of reads showing both the reference and alternate alleles, i.e. this will only be applied to heterozygous calls.
+		- SOR > 4.0. StrandOddRank. Strandbias.
 
-Se realiza la llamada a variantes de forma conjunta para los tres individuos de la familia. El formato saca el genotipo de cada individuo para todas las posiciones en las que alguno de ellos tenga una variante respecto a referencia. Se utiliza el nuevo módulo de variant calling de GATK, HaplotypeCaller que se vale del cálculo de haplotipos para mejorar la llamada de variantes. Además, es capaz de llamar SNPs, indels y algunas variantes estructurales haciendo un ensamblado de novo. 
+	3. **Genotype refinement**:
 
-Determina si una región es potencialmente variable
-Construye un ensamblado deBruigin de la región.
-Los paths en el grafo son haplotipos potenciales que tienen que ser evaluados.
-Se calcula los likelihoods de los haplotipos dados los datos usando un modelo PairHMM.
-Determina si hay alguna vairante ente los haplotipos más probables.
-Calcula la distribución de la frecuencia alélica para determinar el contaje de alelos más probables y emite una variante si se da el caso.
-Si se emite una variante se calcula el genotipo para cada muestra.
+		- PhaseByTransmission: técnica estadística para determinar cuándo es posible qué alelo proviene del padre y cuál de la madre en el niño. Por consenso se pone primero el alelo de la madre y luego el del padre. Madre 1/0 padre 0/0, niño 1(madre) | 0(padre). Sólo se permite el análisis de trios actualmente, por lo que sólo aparecerán las fases calculadas para padre, madre y probando. No se realizará phasing en los hermanos.
+		- ReadBackedPhasing: determina la presencia de haplotipos en cada muestra, no entre ellas. Busca grupos de snps que se encuentran en el mismo cromosoma. Por lo que entiendo haplotypeCaller utiliza este mecanismo para determinar los genotipos pero no lo marca en el vcf. Al correr este Walker en el vcf se marcan los genotipos con la | en vez de con / cuando se ha conseguido determinar un haplotipo.
 
-Se analiza con una diferencia respecto a las Best Practice de GATK. Se analizan las 5 muestras al mismo tiempo con HaplotypeCaller (esto cambiará en las siguientes versiones donde se analizarán por separado generando gVCFs en vez de VCFs, ya que en este modo ya se hace el phasing directamente con HaplotypeCaller). Se obtiene por tanto un vcf con todas las variantes detectadas en alguno de los 5 miembros.
+**Results directory:** ANALYSIS/{ANALYSIS_ID}/variant_calling/variants_gatk/variants
+- Files:
+	- `all_samples.vcf`: raw variants outputed by HaplotypeCaller.
+	- `all_samples_snps.vcf`: only raw snps.
+	- `all_samples_snps_fil.vcf`: snps with marked filters.
+	- `all_samples_indels.vcf`: only raw indels.
+	- `all_samples_indels_fil.vcf`: indels with marked filters.
+	- `all_samples_fil.vcf`: snps and indels filtered combined.
+	- `all_samples_PhaseByTransmission.vcf`: variants with phases calculated.
+	- `all_samples_ReadBackedPhasing.vcf`: variants with backend phases calculated.
+	- `all_samples_gtpos.vcf`: variants with genotype quality fixed.
+	- `all_samples_gtpos_fil.vcf`: variants with marked filters.
+	- `all_samples_gtpos_fil_annot.vcf`: variants with putative de novo mutations annotated.
 
-HardFiltering: este paso se hace ante la imposibilidad de realizar una recalibración de variantes según el workflow de GATK (VariantRecalibration) que necesita de al menos 10 muestras para que los scores estadísticos sean significativos. Por lo tanto, tenemos que realizar filtros simples para quedarnos con las variantes de mejor calidad y eliminar los posibles falsos positivos según los filtros recomendados en las Best Practices de GATK:
+## Annotation and Filtering
+### KGGSeq
+KGGSeq is used for post-analysis and annotation of variants obtained with GATK (Li, Gui, Kwan, Bao, & Sham, 2012). [KGGSeq](http://grass.cgs.hku.hk/limx/kggseq/) is used for variant annotation, a tool design for variant priorization in the study of mendelian diseases.
 
-MQ < 40. RMSMappingQuality. This is the Root Mean Square of the mapping quality of the reads across all samples.
-DP <5. LowCoverage
-QD <2.0. LowQD. This is the variant confidence (from the QUAL field) divided by the unfiltered depth of non-reference samples.
-FS >60.0. p-value StrandBias. Phred-scaled p-value using Fisher’s Exact Test to detect strand bias (the variation being seen on only the forward or only the reverse strand) in the reads. More bias is indicative of false positive calls
-MQRankSum < -12.5. MappingQualityRankSumTest. This is the u-based z-approximation from the Mann-Whitney Rank Sum Test for mapping qualities (reads with ref bases vs. those with the alternate allele). Note that the mapping quality rank sum test can not be calculated for sites without a mixture of reads showing both the reference and alternate alleles, i.e. this will only be applied to heterozygous calls.
-ReadPosRankSum < -8.0. VariantReadPosEnd. This is the u-based z-approximation from the Mann-Whitney Rank Sum Test for the distance from the end of the read for reads with the alternate allele. If the alternate allele is only seen near the ends of reads, this is indicative of error. Note that the read position rank sum test cannot be calculated for sites without a mixture of reads showing both the reference and alternate alleles, i.e. this will only be applied to heterozygous calls.
-SOR > 4.0. StrandOddRank. Strandbias.
+Besides functional annotation some variant filtering is performed:
+- Depth < 4
+- GQ < 10.0
+- PL < 20
+- Sequencing quality < 50.0
+- Population frequency in ANY database (ESP5400,dbsnp141,1kg201305,exac) > 0.005
+- Bed enrichment filter: two set of variants are annotated, all variants called and only variants intersecting the bed enrichment file provided by the commercial library kit.
 
--	Refinamiento de los genotipos: una vez que se obtienen los genotipos para todas las posiciones variantes de la familia, hay dos herramientas de gatk que se pueden aplicar para refinar los datos obtenidos sabiendo el pedigrí. Estos son:
+Moreover variants are prioritise by Genetic inheritance sharing according to the researcher request:
+ - *De novo*: ONLY include variants at which an offspring has one or two non-inherited alleles AND Exclude variants at which both affected and unaffected subjects have the same heterozygous genotypes
+ - *Recessive and Compound-heterozygosity*: This function is designed for a disorder suspected to be under compound-heterozygous or recessive inheritance mode, in which both copies of a gene on the two ortholog chromosomes of a patient are damaged by two different mutations or the same mutation. For recessive mode, it simply checks variants with homozygous genotypes in patients. For the compound-heterozygous mode, it can use two different input data, phased genotypes of a patient or unphased genotypes in a trio. Here the trio refers to the two parents and an offspring. When these alleles causing a disease at one locus, it follows the recessive model; and when they are at two loci, it follows the compound-heterozygosity model. In both cases, a gene is hit twice. This is the reason why it has the name 'double-hit gene'.). 
 
-o	PhaseByTransmission: técnica estadística para determinar cuándo es posible qué alelo proviene del padre y cuál de la madre en el niño. Por consenso se pone primero el alelo de la madre y luego el del padre. Madre 1/0 padre 0/0, niño 1(madre) | 0(padre). Sólo se permite el análisis de trios actualmente, por lo que sólo aparecerán las fases calculadas para padre, madre y probando. No se realizará phasing en los hermanos.
-o	ReadBackedPhasing: determina la presencia de haplotipos en cada muestra, no entre ellas. Busca grupos de snps que se encuentran en el mismo cromosoma. Por lo que entiendo haplotypeCaller utiliza este mecanismo para determinar los genotipos pero no lo marca en el vcf. Al correr este Walker en el vcf se marcan los genotipos con la | en vez de con / cuando se ha conseguido determinar un haplotipo.
 
-Los resultados del variant calling se encuentran en ..\ANALYSIS\20180220_TRIO04401 \variant_calling\variants_gatk\variants. Ahí están los ficheros de variantes, los ficheros donde se encuentran las variantes ya filtradas y anotados los haplotipos ..\ANALYSIS\20180220_TRIO04401\variant_calling\variants_gatk\variants\all_sample_varants_gtpos_fil.vcf. Este último fichero será el que hay que anotar for gen, efecto génico, buscar los snps que sigan el modelo de la enfermedad (de novo, heterocigosis compuesta)
+**Results directory:** ANALYSIS/{ANALYSIS_ID}/annotation
+- Files:
+  - All variants (not filtered by the bed file)
+  	- `variants_denovo_phased.tab`: FINAL annotation file only for denovo mutations. It contains all paramters from variant calling and all annotation from KGGSeq.
+	- `variants_doublehit_phased.tab`: FINAL annotation file only for recessive and doublehit mutations. It contains all paramters from variant calling and all annotation from KGGSeq.
+	- `all_samples_gtpos_fil_annot_doublehit.vcf.doublehit.gene.trios.flt.count.txt`: file with double-hit genes.
+	- `all_samples_gtpos_fil_annot_doublehit.vcf.doublehit.gene.trios.flt.gty.txt`: file with genotype for double-hit genes.
+	- `all_samples_gtpos_fil_annot_doublehit.vcf.flt.txt`: double-hit variants with annotation.
+	- `all_samples_gtpos_fil_annot_denovo.vcf.flt.txt`: de novo variants with annotation.
+  - Only variants filtered by the bed file. Same as above but in `bedfilter` folder.
 
-Post-Análisis: Anotación y filtrado
-Para el post análisis de las variantes obtenidas con GATK se utiliza el software KGGSeq (Li, Gui, Kwan, Bao, & Sham, 2012), una herramienta diseñada para priorizar variantes en el estudio de enfermedades mendelianas. En resumen, se trata de una herramienta de anotación de variantes. Permite incluir información de efecto, gen, tránscrito, enfermedades conocidas relacionadas, artículos de pubmed, etc. Además, permite realizar distintos tipos de filtro por calidad phred, por frecuencia, por common_snps (con frecuencia poblacional que puedes elegir), y lo más interesante de todo por modelo de enfermedad (es capaz de filtrar vcf seleccionando aquellas variantes de novo, heterocigosis recesiva, compuesta, etc.)
-  Lo primero que se hace es realizar el filtro por el bed de enriquecimiento que proporciona la casa comercial según el kit de enriquecimiento.
-	Según la petición del servicio, se solicita el filtrado de variantes de novo (ONLY include variants at which an offspring has one or two non-inherited alleles AND Exclude variants at which both affected and unaffected subjects have the same heterozygous genotypesc) y en heterocigosis recesiva y compuesta (This function is designed for a disorder suspected to be under compound-heterozygous or recessive inheritance mode, in which both copies of a gene on the two ortholog chromosomes of a patient are damaged by two different mutations or the same mutation. For recessive mode, it simply checks variants with homozygous genotypes in patients. For the compound-heterozygous mode, it can use two different input data, phased genotypes of a patient or unphased genotypes in a trio. Here the trio refers to the two parents and an offspring. When these alleles causing a disease at one locus, it follows the recessive model; and when they are at two loci, it follows the compound-heterozygosity model. In both cases, a gene is hit twice. This is the reason why it has the name 'double-hit gene'.). 
-Además de las anotaciones funcionales y predictivas se realizan una serie de filtros: 
-Depth < 4
-GQ < 10.0
-PL < 20
-Sequencing quality < 50.0
-Population frequency in ANY database (ESP5400,dbsnp141,1kg201305,exac) > 0.005
-Los ficheros finales anotados con variantes se pueden encontrar en ..\ANALYSIS\20180220_TRIO04401 \annotation y ..\ANALYSIS\20180220_TRIO04401 \annotation\bedfilter (sin y con filtro por bed de enriquecimiento).
-Double-hit variants:..\ANALYSIS\20180220_TRIO04401\annotation\variants_doublehit_excell.xlsx
-Novo variants: ..\ANALYSIS\20180220_TRIO04401\annotation\variants_novo_excell.xlsx
+## Annex II
+|Column|Meaning|
+| --- | --- |
+|Chromosome|chromosome number|
+|StartPosition|Human genome reference position|
+|ReferenceAlternativeAllele|reference/alternative allele|
+|rsID|SNP rs ID|
+|MostImportantFeatureGene|Gene Symbol|
+|MostImportantGeneFeature|Gene feature {missense,intronic, ncRNA, etc}|
+|RefGeneFeatures|Gene Features {codons,transcripts,etc}|
+|SLR|Sitewise Likelihood-ratio (SLR) test statistic for testing natural selection on codons. A negative value indicates negative selection, and a positive value indicates positive selection. Larger magnitude of the value suggests stronger evidence.|
+|SIFT_score|SIFT uses the 'Sorting Tolerant From Intolerant' (SIFT) algorithm to predict whether a single amino acid substitution affects protein function or not, based on the assumption that important amino acids in a protein sequence should be conserved throughout evolution and substitutions at highly conserved sites are expected to affect protein function.A small scoreindicates a high chance for a substitutionto damage the protein function.|
+|Polyphen2_HDIV_score|"Polyphen2 score based on HumDiv, i.e. hdiv_prob. The score ranges from 0 to 1, and the corresponding prediction is ""probably damaging"" if it is in [0.957,1]; ""possibly damaging"" if it is in [0.453,0.956]; ""benign"" if it is in [0,0.452]. Score cutoff for binary classification is 0.5, i.e. the prediction is ""neutral"" if the score is smaller than 0.5 and ""deleterious"" if the score is larger than 0.5. Multiple entries separated by "";"""|
+|Polyphen2_HVAR_score|Polyphen2 predicts the possible impact of an amino acid substitution on the structure and function of a human protein using straightforward physical and comparative considerations by an iterative greedy algorithm. In the present study, we use the original scores generated by the HumVar (instead ofHumDiv) trained model as it is preferred for the diagnosis of Mendelian diseases. The scores range from 0 to 1. A substitution with larger score has a higher possibility to damage the protein function.|
+|LRT_score|LRT employed a likelihood ratio test to assess variant deleteriousnessbased on a comparative genomics data set of 32 vertebrate species. The identified deleterious mutations could disrupt highly conserved amino acids within protein-coding sequences, which are likely to be unconditionally deleterious.The scores range from 0 to 1. A larger score indicates a larger deleterious effect.|
+|MutationTaster_score|MutationTaster assesses the impact of the disease-causing potential of a sequence variant by a naive Bayes classifier using multiple resources such as evolutionary conservation, splice-site changes, loss of protein features and changes that might affect mRNA level. The scores range from 0 to 1. The larger score suggests a higher probability to cause a human disease.|
+|MutationAssessor_score|"MutationAssessor ""functional impact of a variant : predicted functional (high, medium), predicted non-functional (low, neutral)"" Please refer to Reva et al. Nucl. Acids Res. (2011) 39(17):e118 for details"|
+|FATHMM_score|"FATHMM default score (weighted for human inherited-disease mutations with Disease Ontology); If a score is smaller than -1.5 the corresponding NS is predicted as ""D(AMAGING)""; otherwise it is predicted as ""T(OLERATED)"". If there's more than one scores associated with the same NS due to isoforms, the smallest score (most damaging) was used. Please refer to Shihab et al Hum. Mut. (2013) 34(1):57-65 for details"|
+|VEST3|VEST 3.0 score. Score ranges from 0 to 1. The larger the score the more likely the mutation may cause functional change. In case there are multiple scores for the same variant, the largest score (most damaging) is presented. Please refer to Carter et al., (2013) BMC Genomics. 14(3) 1-16 for details. Please note this score is free for non-commercial use. For more details please refer to http://wiki.chasmsoftware.org/index.php/SoftwareLicense. Commercial users should contact the Johns Hopkins Technology Transfer office.|
+|CADD_score|Combined Annotation Dependent Depletion (CADD) score for funtional prediction of a SNP. Please refer to Kircher et al. (2014) Nature Genetics 46(3):310-5  for details. The larger the score the more likely the SNP has damaging effect.|
+|GERP++_NR|Neutral rate|
+|GERP++_RS|RS score, the larger the score, the more conserved the site|
+|phyloP|PhyloP estimates the evolutional conservation at each variant from multiple alignments of placental mammal genomes to the human genome based on a phylogenetic hidden Markov model.|
+|29way_logOdds|SiPhy score based on 29 mammals genomes. The larger the score, the more conserved the site.|
+|LRT_Omega|Estimated nonsynonymous-to-synonymous-rate ratio ( reported by LRT)|
+|AffectedRefHomGtyNum|Number of affected individuals with reference homozygote at this variant;|
+|AffectedHetGtyNum|Number of affected individuals with heterozygote at this variant;|
+|AffectedAltHomGtyNum|Number of affected individuals with non-ref homozygote;|
+|UnaffectedRefHomGtyNum|Number of unaffected individuals with reference homozygote at this variant;|
+|UnaffectedHetGtyNum|Number of unaffected individuals with heterozygote at this variant;|
+|UnaffectedAltHomGtyNum|Number of unaffected individuals with non-ref homozygote;|
+|DenovoMutationEvent|"n the main output file, there is a column named DenovoMutationEvent to record the genotypes of a child and his or her parents. Example: N140_0:0/1:46,59&N140_1:0/0:57,0&N140_2:0/0:68,0. The child N140_0 has genotype 0/1 with 46 and 59 reads carrying reference alleles and alternative alleles respectively. The father N140_1 and mother N140_2 are homozygous 0/0."|
+|UniProtFeatureForRefGene|Annotate a variant of coding gene using the UniProt protein annotations.|
+|GeneDescription|Gene description|
+|Pseudogenes|Pseudogenes listed in http://tables.pseudogene.org/set.py?id=Human61|
+|DiseaseName(s)MIMid|"Disorder, <disorder MIM no.> (<phene mapping key>) Phenotype mapping method <phene mapping key>:1 - the disorder is placed on the map based on its association with a gene, but the underlying defect is not known.2 - the disorder has been placed on the map by linkage; no mutation has been found. 3 - the molecular basis for the disorder is known; a mutation has been found in the gene.4 - a contiguous gene deletion or duplication syndrome, multiple genes are deleted or duplicated causing the phenotype."|
+|GeneMIMid|GeneMIMid : Gene/locus MIM no.|
+|SIFT_pred|SIFT prediction filter|
+|Polyphen2_HDIV_pred|"Polyphen2 prediction based on HumDiv, ""D"" (""porobably damaging""), ""P"" (""possibly damaging"") and ""B"" (""benign""). Multiple entries separated by "";"""|
+|Polyphen2_HVAR_pred|"Polyphen2 prediction based on HumVar, ""D"" (""porobably damaging""), ""P"" (""possibly damaging"") and ""B"" (""benign""). Multiple entries separated by "";"""|
+|LRT_pred|Classification using LRT (D = deleterious, N = neutral, or U = unknown)|
+|MutationTaster_pred|Classification using MutationTaster (A = disease_causing_automatic, D = disease_causing, N = polymorphism, or P = polymorphism_automatic)|
+|MutationAssessor_pred|"MutationAssessor ""functional impact of a variant : predicted functional (high, medium), predicted non-functional (low, neutral)"""|
+|FATHMM_pred|FATHMM prediction filter.|
+|DiseaseCausalProb_ExoVarTrainedModel|Conditional probability of being Mendelian disease-causing given the above prediction scores under a logistic regression model trained by our dataset ExoVar.|
+|IsRareDiseaseCausal_ExoVarTrainedModel|Classification using the logistic regression model (Y = disease-causing or N = neutral)|
+|BestCombinedTools:OptimalCutoff:TP:TN|The subset of original prediction tools (out of the 13 tools) used for the combined prediction by our Logistic Regression model which have the largest posterior probability among all possible combinatorial subsets: the cutoff leads to the maximal Matthews correlation coefficient (MCC): the corresponding true positive and true negative at the maximal MCC.|
+|TFBSconsSite[tfbsName:rawScore:zScore]|Conserved TFBSs in the UCSC genome browser|
+|vistaEnhancer[enhancerName:positive/negative]|Known enhancers in the VISTA enhancer browser|
+|PubMedIDIdeogram|PubMed ID of articles in which the term and the cytogeneic position of the variant are co-mentioned|
+|PubMedIDGene|PubMed ID of articles in which the term and the gene containing the variant are co-mentioned|
 
-La explicación del significado de cada uno de los campos del excell se puede encontrar en: fields_description.xlsx
-
-Estadísticas de las variantes: se ha realizado una serie de estadísticas de las variantes detectadas. Las estadísticas se pueden consultar en el excell: ..\ANALYSIS\20180220_TRIO04401\ stats\vcf_stats.xlxs.
-En el enlace se puede leer alguna de las interpretaciones que se pueden hacer con este tipo de estadísticas para el control de calidad del variant calling.
 ## Annex III
 
 |BAIT_SET|The name of the bait set used in the hybrid selection.|
