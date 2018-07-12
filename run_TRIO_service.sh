@@ -8,6 +8,7 @@
 ###############################################################################
 
 # Service to use as reference, files and folder structure will be copied from here
+templates="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/templates_TRIO_service"
 reference_service="/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER083_20180611_TRIO045_BM_S"
 mode=""
 echo "Using $reference_service as reference service to copy basic files and folder structure";
@@ -46,7 +47,7 @@ reference_name=$( basename "$reference_name" )
 reference_id=${reference_name#*_}
 reference_id=${reference_id%_*_*}
 reference_id=${reference_id}01
-reference_id="20180220_TRIO04501"
+#reference_id="20180220_TRIO04501"
 
 # Create folder structure
 if [[ $mode == "create" ]]; then
@@ -69,12 +70,12 @@ fi
 # Execute pipeline
 if [[ $mode == "execute" ]]; then
     
-    # Find input inside RAW
-    files=$( ls $new_service/RAW/*.fastq.gz )
+    # Find input fastq.gz inside RAW and subdirectories
+    files=$( ls -d $( find $new_service/RAW/ -name *.fastq.gz ) )
     echo "Pipeline will execute using $files as input"
     
     # Copy previous service's xgen_exome files into new service's RAW folder
-    cp $reference_service/RAW*/xgen-exome-research-panel-* $new_service/RAW/
+    cp $templates/RAW/xgen-exome-research-panel-* $new_service/RAW/
     echo "Copied xgen-exome files inside RAW";
     
     # Create sample list and symbolic links in 00-reads
@@ -99,8 +100,8 @@ if [[ $mode == "execute" ]]; then
     echo "Created symbolinc links for samples inside ANALYSIS/00-reads and listed samples in ANALYSIS/samples_id.txt"
     
     # Copy config_diploid.file and module.sh
-    cp $reference_service/ANALYSIS/config_diploid.file $new_service/ANALYSIS/
-    cp $reference_service/ANALYSIS/module.sh $new_service/ANALYSIS/
+    cp $templates/config_diploid.file.bak $new_service/ANALYSIS/config_diploid.file
+    cp $templates/module.sh.bak $new_service/ANALYSIS/module.sh
     echo "Copied config_diploid.file and module.sh into $new_service/ANALYSIS/"
     
     # Modify config_diploid.file
@@ -110,7 +111,7 @@ if [[ $mode == "execute" ]]; then
     echo "Modified config_diploid.file"
     
     # Copy familypedigri.ped
-    cp $reference_service/DOC/familypedigri.ped $new_service/DOC/
+    cp $templates/familypedigri.ped.bak $new_service/DOC/familypedigri.ped
     echo "Copied familypedigri.ped into $new_service/DOC/"
     
     # Modify familypedigri.ped
@@ -126,6 +127,7 @@ if [[ $mode == "execute" ]]; then
     echo ""
     echo "When ready, execute the following command:"
     echo "bash /processing_Data/bioinformatics/pipelines/exome_pipeline/lib/run_exome_germline.sh $new_service/ANALYSIS/config_diploid.file &> $new_service/ANALYSIS/$trio_id.log"
+    echo "bash /processing_Data/bioinformatics/pipelines/exome_pipeline/lib/run_exome_germline.sh $new_service/ANALYSIS/config_diploid.file &> $new_service/ANALYSIS/$trio_id.log" > $new_service/ANALYSIS/command.sh
     echo ""
     echo "Wait until the submitted jobs are done and re-execute this script again to run the post-processing steps"
     echo ""
@@ -140,8 +142,8 @@ if [[ $mode == "post-processing" ]]; then
     echo ""
     
     # Copy merge_parse.R
-    cp $reference_service/ANALYSIS/$reference_id/annotation/merge_parse.R $new_service/ANALYSIS/$trio_id/annotation/
-    cp $reference_service/ANALYSIS/$reference_id/annotation/merge_parse.R $new_service/ANALYSIS/$trio_id/annotation/bedfilter/
+    cp $templates/merge_parse.R.bak $new_service/ANALYSIS/$trio_id/annotation/merge_parse.R
+    cp $templates/merge_parse.R.bak $new_service/ANALYSIS/$trio_id/annotation/bedfilter/merge_parse.R
     echo "Copied merfe_parse.R in $new_service/ANALYSIS/$trio_id/annotation/ and $new_service/ANALYSIS/$trio_id/annotation/bedfilter/"
     
     # Execute merge_parse.R
@@ -163,10 +165,10 @@ if [[ $mode == "post-processing" ]]; then
     echo "Created stats directories"
     
     # Copy lablog scripts into stats diresctories
-    cp $reference_service/ANALYSIS/$reference_id/stats/lablog $new_service/ANALYSIS/$trio_id/stats/
-    cp $reference_service/ANALYSIS/$reference_id/stats/bamstats/lablog $new_service/ANALYSIS/$trio_id/stats/bamstats
-    cp $reference_service/ANALYSIS/$reference_id/stats/bedtools/lablog $new_service/ANALYSIS/$trio_id/stats/bedtools
-    cp $reference_service/ANALYSIS/$reference_id/stats/bedtools/coverage_graphs.R $new_service/ANALYSIS/$trio_id/stats/bedtools
+    cp $templates/stats/lablog.bak $new_service/ANALYSIS/$trio_id/stats/lablog
+    cp $templates/stats/bamstats/lablog.bak $new_service/ANALYSIS/$trio_id/stats/bamstats/lablog
+    cp $templates/stats/bedtools/lablog.bak $new_service/ANALYSIS/$trio_id/stats/bedtools/lablog
+    cp $templates/stats/bedtools/coverage_graphs.R.bak $new_service/ANALYSIS/$trio_id/stats/bedtools/coverage_graphs.R
     echo "Copied lablog scripts"
     
     # Execute lablog scripts

@@ -1,0 +1,15 @@
+## Script en R que va a hacer un merge del fichero vcf que se obtiene de gatk y las anotaciones que se obtienen con kggseq.
+
+variants_phased <- read.table("vcf_merge.vcf",header=T,sep="\t")
+kggseq_annot_novo_phased <- read.csv("./all_samples_gtpos_fil_annot_denovo.vcf.flt.txt",header=T,sep="\t")
+kggseq_annot_doublehit_phased <- read.csv("./all_samples_gtpos_fil_annot_doublehit.vcf.flt.txt",header=T,sep="\t")
+
+variants_phased$merged <- paste(variants_phased$CHROM,variants_phased$POS,sep="_")
+kggseq_annot_novo_phased$merged <- paste(kggseq_annot_novo_phased$Chromosome,kggseq_annot_novo_phased$StartPosition,sep="_")
+kggseq_annot_doublehit_phased$merged <- paste(kggseq_annot_doublehit_phased$Chromosome,kggseq_annot_doublehit_phased$StartPosition,sep="_")
+
+table_comp <- merge(variants_phased,kggseq_annot_novo_phased,by="merged",all.x=F,all.y=T)
+write.table(table_comp,file="variants_denovo_phased.tab",sep="\t",row.names=F)
+
+table_comp <- merge(variants_phased,kggseq_annot_doublehit_phased,by="merged",all.x=F,all.y=T)
+write.table(table_comp,file="variants_doublehit_phased.tab",sep="\t",row.names=F)

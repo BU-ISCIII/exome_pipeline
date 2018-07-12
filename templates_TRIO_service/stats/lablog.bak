@@ -1,0 +1,3 @@
+cp -r ~/html_report/css/ ~/html_report/js/ ~/html_report/template.html .
+perl ~/html_report/listFastQCReports.pl ../QC/fastqc/ > table.html
+perl ~/html_report/createHTML.pl 

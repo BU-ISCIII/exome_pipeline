@@ -1,0 +1,6 @@
+cat ../../../samples_id.txt | xargs -I % echo "qsub -V -b y -j y -l h_vmem=15g -cwd -N PICARDHSMETRICS.% -q all.q java -Xmx10g -jar /opt/picard-tools/picard-tools-1.140/picard.jar CalculateHsMetrics BI= ../../../../RAW/xgen-exome-research-panel-probes.interval_list TI= ../../../../RAW/xgen-exome-research-panel-targets.interval_list I=../../Alignment/BAM/%/%.woduplicates.bam O=%_hsMetrics.out VALIDATION_STRINGENCY='LENIENT'" > 01_picardHsMetrics.sh
+cat ../../../samples_id.txt | xargs -I % echo "qsub -V -b y -cwd -e %_bamstat.txt -N BAMUTIL.% -q all.q bam stats --regionList ../../../../RAW/truseq-rapid-exome-targeted-regions-manifest-v1-2.chr_mod.bed --in ../../Alignment/BAM/%/%.woduplicates.bam --baseSum --basic" > 00_bamutil.sh
+
+echo "echo "\"SAMPLE\",\"MEAN TARGET COVERAGE\", \"PCT USABLE BASES ON TARGET\",\"FOLD ENRICHMENT\",\"PCT TARGET BASES 10X\",\"PCT TARGET BASES 20X\",\"PCT TARGET BASES 30X\",\"PCT TARGET BASES 40X\",\"PCT TARGET BASES 50X\"" > hsMetrics_all.out" > 02_hsMetrics_all.sh
+cat ../../../samples_id.txt | xargs -I % echo "grep '^xgen' %_hsMetrics.out | awk 'BEGIN{FS=\"\\t\";OFS=\",\"}{print \"%\",\$22,\$24,\$25,\$29,\$30,\$31,\$32,\$33}' >> hsMetrics_all.out" >> 02_hsMetrics_all.sh
+
