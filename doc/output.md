@@ -98,23 +98,25 @@ Best Practice GATK protocol has been used for the variant calling of germinal va
 This workflow comprises three different steps:
 
 1. **Data preprocessing:**
-       a. **Realignment:** starting from BAM file generated with [BWA](#bwa) and [Picard MarkDuplicates](#markduplicates), realignment around candidate indels is performed in order to improve mapping in complicated zones (low complexity, homopolymers, etc). 
-       **Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/realignment
-       - `{sample_id}.realigned.bam` : realigned bam.
-       - `{sample_id}.realigned.bam-bai`: index for realigned bam.
-       - `{sample_id}.woduplicates.bam-IndelRealigner.intervals`: file with "problematic" regions where realignment was needed.
-     **NOTE:** This results are not removed due to disk space issues, only last bam processed bam file is retained.. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
+  a.  **Realignment:** starting from BAM file generated with [BWA](#bwa) and [Picard MarkDuplicates](#markduplicates), realignment around candidate indels is performed in order to improve mapping in complicated zones (low complexity, homopolymers, etc). 
   
-       b. **Base Recalibrarion**: Next step carries out a phed quality recalibration of bases, using a gold standard set of known SNPS (dbSNP138) using a machine learning approach.
-	**Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/recalibration
-	- `{sample_id}.woduplicates.bam-BQSR.pdf` : pdf file with quality graphics before and after recalibration.
-	- `{sample_id}.recalibrated.bam` : recalibrated bam.
-	- `{sample_id}.recalibrated.bai` : index for recalibrated bams.
-	- `{sample_id}.woduplicates.bam-BQSR.csv`: intermediate file.
-	- `{sample_id}.woduplicates.bam-recal2_data.grp`: intermediate file.
-	
-**NOTE:** BAM files are removed due to disk space issues. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
-
+   **Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/realignment
+    - `{sample_id}.realigned.bam` : realigned bam.
+    - `{sample_id}.realigned.bam-bai`: index for realigned bam.
+    - `{sample_id}.woduplicates.bam-IndelRealigner.intervals`: file with "problematic" regions where realignment was needed.
+    
+   **NOTE:** This results are not removed due to disk space issues, only last bam processed bam file is retained.. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
+  
+  b. **Base Recalibrarion**: Next step carries out a phed quality recalibration of bases, using a gold standard set of known SNPS (dbSNP138) using a machine learning approach.
+   
+   **Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/recalibration
+    - `{sample_id}.woduplicates.bam-BQSR.pdf` : pdf file with quality graphics before and after recalibration.
+    - `{sample_id}.recalibrated.bam` : recalibrated bam.
+    - `{sample_id}.recalibrated.bai` : index for recalibrated bams.
+    - `{sample_id}.woduplicates.bam-BQSR.csv`: intermediate file.
+    - `{sample_id}.woduplicates.bam-recal2_data.grp`: intermediate file.
+    
+   **NOTE:** BAM files are removed due to disk space issues. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
 
 2. **Variant Calling:**
 
