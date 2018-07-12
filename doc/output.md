@@ -1,4 +1,4 @@
-<img src="https://github.com/BU-ISCIII/exome_pipeline/blob/develop/doc/isciii_logo_2017.png" width = 200 height=100 />
+<img src="https://github.com/BU-ISCIII/exome_pipeline/blob/develop/doc/logo_bu_isciii.png" width = 200 height=100 />
 
 
 # Output description for Exome pipeline
@@ -185,6 +185,17 @@ Moreover variants are prioritise by Genetic inheritance sharing according to the
 	- `all_samples_gtpos_fil_annot_doublehit.vcf.flt.txt`: double-hit variants with annotation.
 	- `all_samples_gtpos_fil_annot_denovo.vcf.flt.txt`: de novo variants with annotation.
   - Only variants filtered by the bed file. Same as above but in `bedfilter` folder.
+
+## Quality control report
+### MultiQC
+[MultiQC](http://multiqc.info) is a visualisation tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in within the report data directory.
+
+**Output directory:** ANALYSIS/{ANALYSIS_ID}/stats
+
+* `multiqc_report.html`: MultiQC report - a standalone HTML file that can be viewed in your web browser
+* `multiqc_data/`: Directory containing parsed statistics from the different tools used in the pipeline
+
+For more information about how to use MultiQC reports, see http://multiqc.info
 
 ## Annex II
 |Column|Meaning|
