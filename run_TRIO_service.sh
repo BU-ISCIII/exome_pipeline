@@ -13,10 +13,6 @@ mode=""
 echo "Using $reference_service as reference service to copy basic files and folder structure";
 
 # Check that arguments are right and set mode ("create" folder structure where data will be copied, "execute" pipeline where folder and data already exist or "post-processing" for the final steps)
-if [ ! -d $1 ]; then
-    echo "I need the absolute path to the service folder as argument."
-    exit 1
-fi
 new_service=$1
 if [[ $new_service == /processing_Data/bioinformatics/* ]]; then
     if [ -d $new_service ]; then
@@ -54,6 +50,7 @@ reference_id="20180220_TRIO04501"
 
 # Create folder structure
 if [[ $mode == "create" ]]; then
+    mkdir -p "$new_service"
     mkdir -p "$new_service/ANALYSIS" 
     mkdir -p "$new_service/DOC" 
     mkdir -p "$new_service/RAW" 
