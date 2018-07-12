@@ -98,7 +98,11 @@ Best Practice GATK protocol has been used for the variant calling of germinal va
 This workflow comprises three different steps:
 
 1. **Data preprocessing:**
-  a.  **Realignment:** starting from BAM file generated with [BWA](#bwa) and [Picard MarkDuplicates](#markduplicates), realignment around candidate indels is performed in order to improve mapping in complicated zones (low complexity, homopolymers, etc). 
+ 1. prueba
+
+
+
+  1.1.  **Realignment:** starting from BAM file generated with [BWA](#bwa) and [Picard MarkDuplicates](#markduplicates), realignment around candidate indels is performed in order to improve mapping in complicated zones (low complexity, homopolymers, etc). 
   
    **Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/realignment
     - `{sample_id}.realigned.bam` : realigned bam.
@@ -107,7 +111,7 @@ This workflow comprises three different steps:
     
    **NOTE:** This results are not removed due to disk space issues, only last bam processed bam file is retained.. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
   
-  b. **Base Recalibrarion**: Next step carries out a phed quality recalibration of bases, using a gold standard set of known SNPS (dbSNP138) using a machine learning approach.
+  1.2. **Base Recalibrarion**: Next step carries out a phed quality recalibration of bases, using a gold standard set of known SNPS (dbSNP138) using a machine learning approach.
    
    **Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/recalibration
     - `{sample_id}.woduplicates.bam-BQSR.pdf` : pdf file with quality graphics before and after recalibration.
