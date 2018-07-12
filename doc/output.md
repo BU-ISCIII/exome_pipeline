@@ -93,11 +93,32 @@ The Picard section of the MultiQC report shows a table with data as the Bait des
    - Description of Picard hsMetrics columns in its output can be found in [AnnexIII](#annex-iii)
    
 ## Variant Calling
-Para el análisis de las variantes germinales en la familia se ha utilizado el workflow de “Best Practices” instaurado por GATK. La documentación completa del framework se puede encontrar (http://www.broadinstitute.org/gatk/guide/best-practices, noviembre 2015). Este workflow se divide en tres pasos diferenciados:
+### GATK
+Best Practice GATK protocol has been used for the variant calling of germinal variations in the family (http://www.broadinstitute.org/gatk/guide/best-practices, november 2015).
+This workflow comprises three different steps:
 
-Preprocesamiento de los datos: partiendo del fichero BAM obtenido con BWA y filtrados los duplicados. Se realiza un paso de realineamiento alrededor de los indels para mejorar el alineamiento en zonas donde se sabe que hay problemas (bams realineados en ..\ANALYSIS\20180220_TRIO04401\variants\variants_gatk\realignment) y una recalibración de la calidad de las bases para ajustar las calidades de las bases con un mecanismo de machine learning sabiendo sitios de SNPs conocidos. En la carpeta ..\ANALYSIS\20180220_TRIO04401\variant_calling\variants_gatk\recalibration se encuentran los ficheros pdf (uno por muestra) con gráficas que muestran las estadísticas de calidad antes y después de la recalibración.
+1. **Data preprocessing:**
+       a. **Realignment:** starting from BAM file generated with [BWA](#bwa) and [Picard MarkDuplicates](#markduplicates), realignment around candidate indels is performed in order to improve mapping in complicated zones (low complexity, homopolymers, etc). 
+       **Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/realignment
+       - `{sample_id}.realigned.bam` : realigned bam.
+       - `{sample_id}.realigned.bam-bai`: index for realigned bam.
+       - `{sample_id}.woduplicates.bam-IndelRealigner.intervals`: file with "problematic" regions where realignment was needed.
+     **NOTE:** This results are not removed due to disk space issues, only last bam processed bam file is retained.. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
+  
+       b. **Base Recalibrarion**: Next step carries out a phed quality recalibration of bases, using a gold standard set of known SNPS (dbSNP138) using a machine learning approach.
+	**Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/recalibration
+	- `{sample_id}.woduplicates.bam-BQSR.pdf` : pdf file with quality graphics before and after recalibration.
+	- `{sample_id}.recalibrated.bam` : recalibrated bam.
+	- `{sample_id}.recalibrated.bai` : index for recalibrated bams.
+	- `{sample_id}.woduplicates.bam-BQSR.csv`: intermediate file.
+	- `{sample_id}.woduplicates.bam-recal2_data.grp`: intermediate file.
+	
+**NOTE:** BAM files are removed due to disk space issues. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
 
-Variant Calling: Se realiza la llamada a variantes de forma conjunta para los tres individuos de la familia. El formato saca el genotipo de cada individuo para todas las posiciones en las que alguno de ellos tenga una variante respecto a referencia. Se utiliza el nuevo módulo de variant calling de GATK, HaplotypeCaller que se vale del cálculo de haplotipos para mejorar la llamada de variantes. Además, es capaz de llamar SNPs, indels y algunas variantes estructurales haciendo un ensamblado de novo. 
+
+2. **Variant Calling:**
+
+Se realiza la llamada a variantes de forma conjunta para los tres individuos de la familia. El formato saca el genotipo de cada individuo para todas las posiciones en las que alguno de ellos tenga una variante respecto a referencia. Se utiliza el nuevo módulo de variant calling de GATK, HaplotypeCaller que se vale del cálculo de haplotipos para mejorar la llamada de variantes. Además, es capaz de llamar SNPs, indels y algunas variantes estructurales haciendo un ensamblado de novo. 
 
 Determina si una región es potencialmente variable
 Construye un ensamblado deBruigin de la región.
