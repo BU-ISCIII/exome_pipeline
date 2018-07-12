@@ -307,6 +307,6 @@ For more information about how to use MultiQC reports, see http://multiqc.info
 |HET_SNP_SENSITIVITY|The theoretical HET SNP sensitivity.|
 |HET_SNP_Q|The Phred Scaled Q Score of the theoretical HET SNP sensitivity.|
 
-**Bibliografía**
+**Bibliography**
 1. *McKenna, A., Hanna, M., Banks, E., Sivachenko, A., Cibulskis, K., Kernytsky, A., … DePristo, M. a. (2010). The Genome Analysis Toolkit: A MapReduce framework for analyzing next-generation DNA sequencing data. Genome Research, 20(9), 1297–1303. doi:10.1101/gr.107524.110.20*
 2. *Li, M.-X., Gui, H.-S., Kwan, J. S. H., Bao, S.-Y., & Sham, P. C. (2012). A comprehensive framework for prioritizing variants in exome sequencing studies of Mendelian diseases. Nucleic acids research, 40(7), e53. doi:10.1093/nar/gkr1257*
