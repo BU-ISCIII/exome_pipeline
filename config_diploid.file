@@ -33,11 +33,11 @@ INPUT_DIR=/processing_Data/bioinformatics/services_and_colaborations/IIER/geneti
 # Sample info
 SAMPLES=ND0091:ND0092:ND0093:ND0094:ND0095
 
-ND0091=ND0091_R1.fastq.gz	ND0091_R2.fastq.gz 
-ND0092=C9RJ2ACXX_8_F04ss_1.fastq.gz	C9RJ2ACXX_8_F04ss_2.fastq.gz	  
-ND0093=C9RJ2ACXX_8_E04ss_1.fastq.gz	C9RJ2ACXX_8_E04ss_2.fastq.gz   
-ND0094=C9RJ2ACXX_8_G04ss_1.fastq.gz	C9RJ2ACXX_8_G04ss_2.fastq.gz    
-ND0095=C9RJ2ACXX_8_H04ss_1.fastq.gz	C9RJ2ACXX_8_H04ss_2.fastq.gz     
+ND0091=ND0091_R1.fastq.gz	ND0091_R2.fastq.gz
+ND0092=C9RJ2ACXX_8_F04ss_1.fastq.gz	C9RJ2ACXX_8_F04ss_2.fastq.gz
+ND0093=C9RJ2ACXX_8_E04ss_1.fastq.gz	C9RJ2ACXX_8_E04ss_2.fastq.gz
+ND0094=C9RJ2ACXX_8_G04ss_1.fastq.gz	C9RJ2ACXX_8_G04ss_2.fastq.gz
+ND0095=C9RJ2ACXX_8_H04ss_1.fastq.gz	C9RJ2ACXX_8_H04ss_2.fastq.gz
 
 # Output dirs
 OUTPUT_DIR=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/ANALYSIS/20171122_TRIO02601
@@ -45,10 +45,10 @@ OUTPUT_DIR=/processing_Data/bioinformatics/services_and_colaborations/IIER/genet
 ## Reference Variables
 PED_FILE=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/DOC/familypedigri.ped
 GENOME_REF=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/genome/human_g1k_v37.fasta
-EXOME_ENRICHMENT=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/RAW/truseq-rapid-exome-targeted-regions-manifest-v1-2.chr_mod2.bed 
+EXOME_ENRICHMENT=/processing_Data/bioinformatics/services_and_colaborations/IIER/genetica_humana/SRVIIER054_20171113_TRIO026_BM_S/RAW/truseq-rapid-exome-targeted-regions-manifest-v1-2.chr_mod2.bed
 KNOWN_SNPS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/dbsnp_138.b37.vcf
-KNOWN_INDELS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_phase1.indels.b37.vcf  
-SNP_GOLD=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_omni2.5.b37.vcf 
+KNOWN_INDELS=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_phase1.indels.b37.vcf
+SNP_GOLD=/processing_Data/bioinformatics/references/eukaria/homo_sapiens/hg19/1000genomes_b37/variants/20131208/1000G_omni2.5.b37.vcf
 
 ## Software variables
 # Fastqc

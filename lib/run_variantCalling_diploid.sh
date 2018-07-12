@@ -62,6 +62,7 @@ CALLING_CMD="$SCRIPTS_DIR/gatk_diploid.sh $OUTPUT_DIR/variant_calling/variants_g
 BEDFILTER_CMD="$SCRIPTS_DIR/bed_filter.sh $VCF_GTPOS_FIL_ANNOT $EXOME_ENRICHMENT $OUTPUT_DIR/variant_calling/variants_gatk/variants $VCFFIL $OUTPUT_DIR"
 ANNOTATION_CMD="$SCRIPTS_DIR/annotation.sh $VCF_GTPOS_FIL_ANNOT $VCFNOVO $VCFDOUBLEHIT 'vcf_merge.vcf' $OUTPUT_DIR/annotation $REF_PATH $PED_FILE $KGGSEQ_PATH $GATK_PATH $OUTPUT_DIR/variant_calling/variants_gatk/variants"
 ANNOTATIONBEDFILTER_CMD="$SCRIPTS_DIR/annotation.sh $VCFFIL $VCFNOVO $VCFDOUBLEHIT 'vcf_merge_enrich.vcf' $OUTPUT_DIR/annotation/bedfilter $REF_PATH $PED_FILE $KGGSEQ_PATH $GATK_PATH $OUTPUT_DIR/annotation/bedfilter"
+# For families with less than 3 members change $VCF_GTPOS_FIL_ANNOT to $VCF_FIL_NAME in BEDFILTER_CMD and ANNOTATIONBEDFILTER_CMD
 
 if [ $VARIANT_CALLING == "YES" ]; then
  		if [ "$USE_SGE" = "1" ]; then
