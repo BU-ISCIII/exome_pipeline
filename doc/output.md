@@ -1,4 +1,7 @@
-# Output description for panelLowFreq pipeline
+<img src="https://github.com/BU-ISCIII/exome_pipeline/blob/develop/doc/isciii_logo_2017.png" width = 200 height=100 />
+
+
+# Output description for Exome pipeline
 
 **panelLowFreq** is a bioinformatics best-practice variant calling analysis pipeline used for WES-Seq (whole exome sequencing) or target sequencing. The pipeline focused in variant calling and annotation of candidate low frequency variants.
 
