@@ -20,6 +20,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 * [MultiQC](#multiqc) - quality statistics summary
 
 > Each analysis folder contains a log folder with the log files for each process and each sample.
+
 ## Preprocessing
 ### FastQC
 Quality control is performed using [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/). FastQC gives general quality metrics about your reads. It provides information about the quality score distribution across your reads, the per base sequence content (%T/A/G/C). You get information about adapter contamination and other overrepresented sequences.
