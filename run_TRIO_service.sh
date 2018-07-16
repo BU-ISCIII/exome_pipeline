@@ -252,8 +252,9 @@ if [[ $mode == "finish" ]]; then
     mv ANALYSIS/$trio_id/variant_calling/variants_gatk/variant_calling/variants_gatk/recalibration ANALYSIS/$trio_id/variant_calling/variants_gatk/variant_calling/variants_gatk/recalibration_NC
     echo "Renamed NC folders"
     
-    # Copied report files
-    
-    # Modified report files
+    # Copy report files
+    cp $templates/../report/report.html $new_service/DOC/report.html
+    cp $templates/../report/report.pdf $new_service/DOC/report.pdf
+    echo "Copied service report"
     
 fi
