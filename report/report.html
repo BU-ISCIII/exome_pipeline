@@ -274,7 +274,7 @@ img { max-width: 800px; }
 
 <h1 id="toc_0">Output description for Exome pipeline</h1>
 
-<p><strong>panelLowFreq</strong> is a bioinformatics best-practice variant calling analysis pipeline used for WES-Seq (whole exome sequencing) or target sequencing. The pipeline focused in variant calling and annotation of candidate low frequency variants.</p>
+<p><strong>Exome pipeline</strong> is a bioinformatics best-practice variant calling analysis pipeline used for WES-Seq (whole exome sequencing) or target sequencing. The pipeline focused in variant calling and annotation of candidate low frequency variants.</p>
 
 <p>This document describes the output produced by the pipeline and location of output files.</p>
 
@@ -283,14 +283,14 @@ img { max-width: 800px; }
 <p>The pipeline is built using <a href="https://www.nextflow.io/">Nextflow</a> and processes data using the following steps:</p>
 
 <ul>
-<li><a href="#fastqc">FastQC</a> - read quality control</li>
-<li><a href="#trimming">Trimmomatic</a> - adapter and low quality trimming</li>
-<li><a href="#bwa">BWA</a> - mapping against reference genome</li>
-<li><a href="#samtools">SAMtools</a> - alignment result processing</li>
-<li><a href="#picard">Picard</a> - enrichment and alignment metrics</li>
-<li><a href="#varscan">GATK</a> - variant calling.</li>
-<li><a href="#kggseq">KGGSeq</a> - variant annotation.</li>
-<li><a href="#multiqc">MultiQC</a> - quality statistics summary</li>
+<li><a href="#fastqc">FastQC</a> v0.11.3 - read quality control</li>
+<li><a href="#trimming">Trimmomatic</a> v.0.33 - adapter and low quality trimming</li>
+<li><a href="#bwa">BWA</a> v.0.7.12 - mapping against reference genome</li>
+<li><a href="#samtools">SAMtools</a> v1.2 - alignment result processing</li>
+<li><a href="#picard">Picard</a> v.1.140 - enrichment and alignment metrics</li>
+<li><a href="#varscan">GATK</a> v.3.4.46 - variant calling.</li>
+<li><a href="#kggseq">KGGSeq</a> v.0.8 - variant annotation.</li>
+<li><a href="#multiqc">MultiQC</a> v1.5 - quality statistics summary</li>
 </ul>
 
 <blockquote>
