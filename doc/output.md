@@ -1,4 +1,4 @@
-<img src="https://github.com/BU-ISCIII/exome_pipeline/blob/develop/doc/logo_bu_isciii.png" width = 350 height=80 />
+<img src="https://github.com/BU-ISCIII/exome_pipeline/blob/develop/doc/images/logo_bu_isciii.png" width = 350 height=80 />
 
 
 # Output description for Exome pipeline
@@ -36,7 +36,7 @@ For further reading and documentation see the [FastQC help](http://www.bioinform
    - `{sample_id}/{sample_id}.trimmed_R[12]_fastqc.zip`: zip compression of above folder for trimmed reads.
 
 ### Trimming
-[Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) is used for removal of adapter contamination and trimming of low quality regions. 
+[Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) is used for removal of adapter contamination and trimming of low quality regions.
 Parameters included for trimming are:
 -  Nucleotides with phred quality < 10 in 3'end.
 -  Mean phred quality < 15 in a 4 nucleotide window.
@@ -94,7 +94,7 @@ The Picard section of the MultiQC report shows a table with data as the Bait des
    - `hsMetrics_all.out` : summary of the some of the most meaningful columns in picard hsmetrics output for all the samples in the project.
    - `{sample_id}_hsMetrics.out`: full picard hsmetrics output per sample.
    - Description of Picard hsMetrics columns in its output can be found in [AnnexIII](#annex-iii)
-   
+
 ## Variant Calling
 ### GATK
 Best Practice GATK protocol has been used for the variant calling of germinal variations in the family (http://www.broadinstitute.org/gatk/guide/best-practices, november 2015).
@@ -102,34 +102,34 @@ This workflow comprises three different steps:
 
 1. **Data preprocessing:**
 
-    1. **Realignment:** starting from BAM file generated with [BWA](#bwa) and [Picard MarkDuplicates](#markduplicates), realignment around candidate indels is performed in order to improve mapping in complicated zones (low complexity, homopolymers, etc). 
-     
+    1. **Realignment:** starting from BAM file generated with [BWA](#bwa) and [Picard MarkDuplicates](#markduplicates), realignment around candidate indels is performed in order to improve mapping in complicated zones (low complexity, homopolymers, etc).
+
        **Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/realignment
          * `{sample_id}.realigned.bam` : realigned bam.
          * `{sample_id}.realigned.bam-bai`: index for realigned bam.
          * `{sample_id}.woduplicates.bam-IndelRealigner.intervals`: file with "problematic" regions where realignment was needed.
-    
+
        **NOTE:** This results are not removed due to disk space issues, only last bam processed bam file is retained.. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
-  
+
     2. **Base Recalibrarion**: Next step carries out a phed quality recalibration of bases, using a gold standard set of known SNPS (dbSNP138) using a machine learning approach.
-   
+
        **Results directory**: ANALYSIS/{ANALYSIS_DIR}/variants/variants_gatk/recalibration
         - `{sample_id}.woduplicates.bam-BQSR.pdf` : pdf file with quality graphics before and after recalibration.
         - `{sample_id}.recalibrated.bam` : recalibrated bam.
         - `{sample_id}.recalibrated.bai` : index for recalibrated bams.
         - `{sample_id}.woduplicates.bam-BQSR.csv`: intermediate file.
         - `{sample_id}.woduplicates.bam-recal2_data.grp`: intermediate file.
-    
+
        **NOTE:** BAM files are removed due to disk space issues. If you are interesested in using them, please contact us and we will try to generate them and add them to your delivery.
 
 2. **Variant Calling:**
-Variant calling is performed for all the samples obtaining a multivcf file. Vcf (variant calling format) describes the variants (positions different from genome reference) present in a group of samples and its genotype in each sample. 
+Variant calling is performed for all the samples obtaining a multivcf file. Vcf (variant calling format) describes the variants (positions different from genome reference) present in a group of samples and its genotype in each sample.
 	1. **HaplotypeCaller:** this module is capable of calling SNPs and indels simultaneously via local de-novo assembly of haplotypes in an active region. In other words, whenever the program encounters a region showing signs of variation, it discards the existing mapping information and completely reassembles the reads in that region. This allows the HaplotypeCaller to be more accurate when calling regions that are traditionally difficult to call, for example when they contain different types of variants close to each other.
 		1. Define active regions: The program determines which regions of the genome it needs to operate on, based on the presence of significant evidence for variation.
 		2. Determine haplotypes by assembly of the active regions: For each ActiveRegion, the program builds a De Bruijn-like graph to reassemble the ActiveRegion, and identifies what are the possible haplotypes present in the data. The program then realigns each haplotype against the reference haplotype using the Smith-Waterman algorithm in order to identify potentially variant sites.
 		3. Determine likelihoods of the haplotypes given the read data: For each ActiveRegion, the program performs a pairwise alignment of each read against each haplotype using the PairHMM algorithm. This produces a matrix of likelihoods of haplotypes given the read data. These likelihoods are then marginalized to obtain the likelihoods of alleles for each potentially variant site given the read data.
 		4. Assign sample genotypes: For each potentially variant site, the program applies Bayes' rule, using the likelihoods of alleles given the read data to calculate the likelihoods of each genotype per sample given the read data observed for that sample. The most likely genotype is then assigned to the samples.
-	
+
 	2. **HardFiltering:** quality filtering of variants following GATK best practices:
 		- MQ < 40. RMSMappingQuality. This is the Root Mean Square of the mapping quality of the reads across all samples.
 		- DP <5. LowCoverage
@@ -172,7 +172,7 @@ Besides functional annotation some variant filtering is performed:
 
 Moreover variants are prioritise by Genetic inheritance sharing according to the researcher request:
  - *De novo*: ONLY include variants at which an offspring has one or two non-inherited alleles AND Exclude variants at which both affected and unaffected subjects have the same heterozygous genotypes
- - *Recessive and Compound-heterozygosity*: This function is designed for a disorder suspected to be under compound-heterozygous or recessive inheritance mode, in which both copies of a gene on the two ortholog chromosomes of a patient are damaged by two different mutations or the same mutation. For recessive mode, it simply checks variants with homozygous genotypes in patients. For the compound-heterozygous mode, it can use two different input data, phased genotypes of a patient or unphased genotypes in a trio. Here the trio refers to the two parents and an offspring. When these alleles causing a disease at one locus, it follows the recessive model; and when they are at two loci, it follows the compound-heterozygosity model. In both cases, a gene is hit twice. This is the reason why it has the name 'double-hit gene'.). 
+ - *Recessive and Compound-heterozygosity*: This function is designed for a disorder suspected to be under compound-heterozygous or recessive inheritance mode, in which both copies of a gene on the two ortholog chromosomes of a patient are damaged by two different mutations or the same mutation. For recessive mode, it simply checks variants with homozygous genotypes in patients. For the compound-heterozygous mode, it can use two different input data, phased genotypes of a patient or unphased genotypes in a trio. Here the trio refers to the two parents and an offspring. When these alleles causing a disease at one locus, it follows the recessive model; and when they are at two loci, it follows the compound-heterozygosity model. In both cases, a gene is hit twice. This is the reason why it has the name 'double-hit gene'.).
 
 
 **Results directory:** ANALYSIS/{ANALYSIS_ID}/annotation
