@@ -173,7 +173,7 @@ body {
   right: 20px;
   width: 300px;
   padding-top: 20px;
-  overflow: scroll;
+  overflow: none;
   height: calc(100% - 3em - 20px);
 }
 #toc_header {
@@ -203,6 +203,12 @@ img { max-width: 800px; }
 <ul>
 <li>
 <a href="#toc_1">Pipeline overview:</a>
+</li>
+<li>
+<a href="#toc_2">Preprocessing</a>
+<ul>
+<li>
+<a href="#toc_3">FastQC</a>
 </li>
 <li>
 <a href="#toc_4">Trimming</a>
@@ -289,6 +295,7 @@ img { max-width: 800px; }
 
 <blockquote>
 <p>Each analysis folder contains a log folder with the log files for each process and each sample.</p>
+</blockquote>
 
 <h2 id="toc_2">Preprocessing</h2>
 
@@ -296,7 +303,6 @@ img { max-width: 800px; }
 
 <p>Quality control is performed using <a href="https://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC</a>. FastQC gives general quality metrics about your reads. It provides information about the quality score distribution across your reads, the per base sequence content (%T/A/G/C). You get information about adapter contamination and other overrepresented sequences.
 For further reading and documentation see the <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/">FastQC help</a>.</p>
-</blockquote>
 
 <p><strong>Results directory</strong>: ANALYSIS/{ANALYSIS_ID}/QC/fastqc</p>
 
@@ -468,12 +474,13 @@ Variant calling is performed for all the samples obtaining a multivcf file. Vcf 
 <li>ReadPosRankSum &lt; -8.0. VariantReadPosEnd. This is the u-based z-approximation from the Mann-Whitney Rank Sum Test for the distance from the end of the read for reads with the alternate allele. If the alternate allele is only seen near the ends of reads, this is indicative of error. Note that the read position rank sum test cannot be calculated for sites without a mixture of reads showing both the reference and alternate alleles, i.e. this will only be applied to heterozygous calls.</li>
 <li>SOR &gt; 4.0. StrandOddRank. Strandbias.</li>
 </ul></li>
-<li><strong>Genotype refinement</strong>:</li>
-</ol>
+<li><strong>Genotype refinement</strong>:
 
-<pre><code>- PhaseByTransmission: técnica estadística para determinar cuándo es posible qué alelo proviene del padre y cuál de la madre en el niño. Por consenso se pone primero el alelo de la madre y luego el del padre. Madre 1/0 padre 0/0, niño 1(madre) | 0(padre). Sólo se permite el análisis de trios actualmente, por lo que sólo aparecerán las fases calculadas para padre, madre y probando. No se realizará phasing en los hermanos.
-- ReadBackedPhasing: determina la presencia de haplotipos en cada muestra, no entre ellas. Busca grupos de snps que se encuentran en el mismo cromosoma. Por lo que entiendo haplotypeCaller utiliza este mecanismo para determinar los genotipos pero no lo marca en el vcf. Al correr este Walker en el vcf se marcan los genotipos con la | en vez de con / cuando se ha conseguido determinar un haplotipo.
-</code></pre></li>
+<ul>
+<li>PhaseByTransmission: técnica estadística para determinar cuándo es posible qué alelo proviene del padre y cuál de la madre en el niño. Por consenso se pone primero el alelo de la madre y luego el del padre. Madre 1/0 padre 0/0, niño 1(madre) | 0(padre). Sólo se permite el análisis de trios actualmente, por lo que sólo aparecerán las fases calculadas para padre, madre y probando. No se realizará phasing en los hermanos.</li>
+<li>ReadBackedPhasing: determina la presencia de haplotipos en cada muestra, no entre ellas. Busca grupos de snps que se encuentran en el mismo cromosoma. Por lo que entiendo haplotypeCaller utiliza este mecanismo para determinar los genotipos pero no lo marca en el vcf. Al correr este Walker en el vcf se marcan los genotipos con la | en vez de con / cuando se ha conseguido determinar un haplotipo.</li>
+</ul></li>
+</ol></li>
 </ol>
 
 <p><strong>Results directory:</strong> ANALYSIS/{ANALYSIS_ID}/variant_calling/variants_gatk/variants</p>
@@ -757,6 +764,7 @@ Variant calling is performed for all the samples obtaining a multivcf file. Vcf 
 </tbody></table>
 
 <div class="tables-end"></div>
+    
 
 <h2 id="toc_17">Annex III</h2>
 
