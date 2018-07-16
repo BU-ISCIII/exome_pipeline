@@ -4,7 +4,13 @@
 #
 ###############################################################################
 # USAGE:
-# bash run_TRIO_service.sh <Absolute Path for new project>
+# bash run_TRIO_service.sh <Absolute Path for new project> [mode]
+#
+# [mode] in an optional parameter that forces the script to run in a given mode
+# instead of letting it decide the next step to be run. The only exception is
+# the "finish" mode, which would never be executed by the script and has to
+# be specified by the user.
+# Available [mode] values: "create", "execute", "post-processing" and "finish"
 ###############################################################################
 
 # Service to use as reference, files and folder structure will be copied from here
@@ -16,7 +22,12 @@ echo "Using $reference_service as reference service to copy basic files and fold
 # Check that arguments are right and set mode ("create" folder structure where data will be copied, "execute" pipeline where folder and data already exist or "post-processing" for the final steps)
 new_service=$1
 if [[ $new_service == /processing_Data/bioinformatics/* ]]; then
-    if [ -d $new_service ]; then
+    if [ ! -z $2 ] && [ -d $new_service ]; then
+        echo "Found $new_service"
+        echo "Execution mode was manually forced to $2"
+        echo "Setting mode $2"
+        mode=$2
+    elif [ -d $new_service ]; then
         if [ -f "$new_service/ANALYSIS/config_diploid.file" ]; then
             echo "Found $new_service/ANALYSIS/config_diploid.file"
             echo "Setting mode post-processing"
@@ -27,12 +38,25 @@ if [[ $new_service == /processing_Data/bioinformatics/* ]]; then
             mode="execute"
         fi
     else
+        echo "$new_service does not exists. Creating folder structure."
         echo "Creating new TRIO service in $new_service"
         mkdir $new_service;
         mode="create"
     fi
 else
     echo "$new_service is not an absolute path"
+    echo "Make sure you are usign this script correctly"
+    echo ""
+    echo "###################################################################################"
+    echo "# USAGE:"
+    echo "# bash run_TRIO_service.sh <Absolute Path for new project> [mode]"
+    echo "#"
+    echo "# [mode] in an optional parameter that forces the script to run in a given mode"
+    echo "# instead of letting it decide the next step to be run. The only exception is"
+    echo "# the \"finish\" mode, which would never be executed by the script and has to"
+    echo "# be specified by the user."
+    echo "# Available [mode] values: \"create\", \execute\", \"post-processing\" and \"finish\""
+    echo "###################################################################################"
     exit 1
 fi
 
@@ -144,7 +168,7 @@ if [[ $mode == "post-processing" ]]; then
     # Copy merge_parse.R
     cp $templates/merge_parse.R.bak $new_service/ANALYSIS/$trio_id/annotation/merge_parse.R
     cp $templates/merge_parse.R.bak $new_service/ANALYSIS/$trio_id/annotation/bedfilter/merge_parse.R
-    echo "Copied merfe_parse.R in $new_service/ANALYSIS/$trio_id/annotation/ and $new_service/ANALYSIS/$trio_id/annotation/bedfilter/"
+    echo "Copied merge_parse.R in $new_service/ANALYSIS/$trio_id/annotation/ and $new_service/ANALYSIS/$trio_id/annotation/bedfilter/"
     
     # Execute merge_parse.R
     cd $new_service/ANALYSIS/$trio_id/annotation/
@@ -156,7 +180,7 @@ if [[ $mode == "post-processing" ]]; then
     # Unzip FastQC results
     cd $new_service/ANALYSIS/$trio_id/QC/fastqc
     cat ../../../samples_id.txt | xargs -I % echo "cd %;unzip \*.zip;cd .." | bash
-    echo "FastQC results unxipped"
+    echo "FastQC results unzipped"
     
     # Create stats directories
     mkdir -p "$new_service/ANALYSIS/$trio_id/stats" 
@@ -168,7 +192,7 @@ if [[ $mode == "post-processing" ]]; then
     cp $templates/stats/lablog.bak $new_service/ANALYSIS/$trio_id/stats/lablog
     cp $templates/stats/bamstats/lablog.bak $new_service/ANALYSIS/$trio_id/stats/bamstats/lablog
     cp $templates/stats/bedtools/lablog.bak $new_service/ANALYSIS/$trio_id/stats/bedtools/lablog
-    cp $templates/stats/bedtools/coverage_graphs.R.bak $new_service/ANALYSIS/$trio_id/stats/bedtools/coverage_graphs.R
+    cp $templates/stats/bedtools/coverage_graphs.R.bak $new_service/ANALYSIS/$trio_id/stats/bedtools/03_coverage_graphs.R
     echo "Copied lablog scripts"
     
     # Execute lablog scripts
@@ -181,10 +205,10 @@ if [[ $mode == "post-processing" ]]; then
     echo "Executed lablog scritps"
     
     # Modify coverage_graphs.R
-    sample_root=$( $new_service/ANALYSIS/samples_id.txt )
+    sample_root=$( head -1 $new_service/ANALYSIS/samples_id.txt )
     sample_root=${sample_root%?}
-    sed -i "s/ND049/$sample_root/g" $new_service/ANALYSIS/$trio_id/stats/bedtools/coverage_graphs.R
-    echo "Modified coverage_graphs.R"
+    sed -i "s/ND049/$sample_root/g" $new_service/ANALYSIS/$trio_id/stats/bedtools/03_coverage_graphs.R
+    echo "Modified 03_coverage_graphs.R"
     
     echo ""
     echo ""
@@ -194,4 +218,42 @@ if [[ $mode == "post-processing" ]]; then
     echo "$new_service/ANALYSIS/$trio_id/stats/bedtools"
     echo ""
     echo ""
+fi
+
+# Finish
+if [[ $mode == "finish" ]]; then
+    
+    echo "Cleaning up service intermediate folders and getting everything ready for service closure"
+    
+    # Copy MultiQC config file
+    cp $templates/stats/multiqc_config.yaml.bak $new_service/ANALYSIS/$trio_id/stats/multiqc_config.yaml
+    echo "Copied MiltiQC config file"
+    
+    # Run MultiQC
+    cd $new_service/ANALYSIS/$trio_id/stats
+    multiQC --config multiqc_config.yaml ..
+    echo "Executed MultiQC"
+    
+    # Remove alignments and intermediate bam files
+    cd $new_service/ANALYSIS/$trio_id/Alignment
+    find . -name "*align*" -exec rm \;
+    echo "Removed alignments"
+    cd cd $new_service/ANALYSIS/$trio_id/variant_calling/variants_gatk
+    rm *.bam
+    rm *.bai
+    echo "Removed bam and bai files"
+    
+    # Rename NC (Not to Copy) folders
+    cd $new_service
+    mv RAW RAW_NC
+    mv TMP TMP_NC
+    mv ANALISYS/00-reads ANALISYS/00-reads_NC
+    mv ANALYSIS/$trio_id/QC/trimmomatic ANALYSIS/$trio_id/QC/trimmomatic_NC
+    mv ANALYSIS/$trio_id/variant_calling/variants_gatk/variant_calling/variants_gatk/recalibration ANALYSIS/$trio_id/variant_calling/variants_gatk/variant_calling/variants_gatk/recalibration_NC
+    echo "Renamed NC folders"
+    
+    # Copied report files
+    
+    # Modified report files
+    
 fi
