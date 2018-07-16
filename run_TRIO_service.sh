@@ -231,25 +231,25 @@ if [[ $mode == "finish" ]]; then
     
     # Run MultiQC
     cd $new_service/ANALYSIS/$trio_id/stats
-    multiQC --config multiqc_config.yaml ..
+    multiqc --config multiqc_config.yaml ..
     echo "Executed MultiQC"
     
     # Remove alignments and intermediate bam files
     cd $new_service/ANALYSIS/$trio_id/Alignment
-    find . -name "*align*" -exec rm \;
+    find . -name "*align*" -exec rm {} \;
     echo "Removed alignments"
-    cd cd $new_service/ANALYSIS/$trio_id/variant_calling/variants_gatk
-    rm *.bam
-    rm *.bai
+    cd $new_service/ANALYSIS/$trio_id/variant_calling/variants_gatk
+    find . -name "*bam" -exec rm {} \;
+    find . -name "*bai" -exec rm {} \;
     echo "Removed bam and bai files"
     
     # Rename NC (Not to Copy) folders
     cd $new_service
     mv RAW RAW_NC
     mv TMP TMP_NC
-    mv ANALISYS/00-reads ANALISYS/00-reads_NC
+    mv ANALYSIS/00-reads ANALYSIS/00-reads_NC
     mv ANALYSIS/$trio_id/QC/trimmomatic ANALYSIS/$trio_id/QC/trimmomatic_NC
-    mv ANALYSIS/$trio_id/variant_calling/variants_gatk/variant_calling/variants_gatk/recalibration ANALYSIS/$trio_id/variant_calling/variants_gatk/variant_calling/variants_gatk/recalibration_NC
+    mv ANALYSIS/$trio_id/variant_calling/variants_gatk/recalibration ANALYSIS/$trio_id/variant_calling/variants_gatk/recalibration_NC
     echo "Renamed NC folders"
     
     # Copy report files
