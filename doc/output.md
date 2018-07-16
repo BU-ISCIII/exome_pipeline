@@ -3,21 +3,21 @@
 
 # Output description for Exome pipeline
 
-**panelLowFreq** is a bioinformatics best-practice variant calling analysis pipeline used for WES-Seq (whole exome sequencing) or target sequencing. The pipeline focused in variant calling and annotation of candidate low frequency variants.
+**Exome pipeline** is a bioinformatics best-practice variant calling analysis pipeline used for WES-Seq (whole exome sequencing) or target sequencing. The pipeline focused in variant calling and annotation of candidate low frequency variants.
 
 This document describes the output produced by the pipeline and location of output files.
 
 ## Pipeline overview:
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-* [FastQC](#fastqc) - read quality control
-* [Trimmomatic](#trimming) - adapter and low quality trimming
-* [BWA](#bwa) - mapping against reference genome
-* [SAMtools](#samtools) - alignment result processing
-* [Picard](#picard) - enrichment and alignment metrics
-* [GATK](#varscan) - variant calling.
-* [KGGSeq](#kggseq) - variant annotation.
-* [MultiQC](#multiqc) - quality statistics summary
+* [FastQC](#fastqc) v0.11.3 - read quality control
+* [Trimmomatic](#trimming) v.0.33 - adapter and low quality trimming
+* [BWA](#bwa) v.0.7.12 - mapping against reference genome
+* [SAMtools](#samtools) v1.2 - alignment result processing
+* [Picard](#picard) v.1.140 - enrichment and alignment metrics
+* [GATK](#varscan) v.3.4.46 - variant calling.
+* [KGGSeq](#kggseq) v.0.8 - variant annotation.
+* [MultiQC](#multiqc) v1.5 - quality statistics summary
 
 > Each analysis folder contains a log folder with the log files for each process and each sample.
 
