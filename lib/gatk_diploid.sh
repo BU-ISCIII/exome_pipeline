@@ -18,7 +18,7 @@ set -x
 
 ## Usage
 
-if [ $# != 21 -a "$use_sge" == "1" ]; then
+if [ $# != 22 -a "$use_sge" == "1" ]; then
     	echo "usage: ............"
     	exit
 fi
