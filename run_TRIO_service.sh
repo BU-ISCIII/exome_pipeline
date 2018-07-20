@@ -212,7 +212,7 @@ if [[ $mode == "post-processing" ]]; then
     
     echo ""
     echo ""
-    echo "All final scripts successfully created. Check \"len_reads\" if different from 81 and the number of samples if not 3 in $new_service/ANALYSIS/$trio_id/stats/bedtools/03_coverage_graphs.R "
+    echo "All final scripts successfully created. Check \"len_reads\" if different from 71 and the number of samples if not 3 in $new_service/ANALYSIS/$trio_id/stats/bedtools/03_coverage_graphs.R "
     echo "Now manually execute in the right order the numbered scripts you will find in:"
     echo "$new_service/ANALYSIS/$trio_id/stats/bamstats"
     echo "$new_service/ANALYSIS/$trio_id/stats/bedtools"

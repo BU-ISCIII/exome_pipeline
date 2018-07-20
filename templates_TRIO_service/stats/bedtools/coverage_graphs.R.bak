@@ -2,7 +2,7 @@ library(ggplot2)
 library(RColorBrewer)
 brewer_qualitative <- c("#0000ff","#ff0000","#483215","#008900","#7244c4","#e65a11","#000000","#e6e528","#ff00ee","#6e0000","#00c7dd","#d4b455","#8f008d","#736b00","#7d8cbf")
 
-len_reads <- 81
+len_reads <- 71
 
 ## GRAPH COVERAGE HIST OF TARGET
 # get file names
