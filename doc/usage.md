@@ -26,13 +26,13 @@ Once the working directories are ready, the wrapper will stop and ask the user t
 
 #### "execute"
 
-The script will look for the fastq.gz files in `RAW`, parse their names and prepare the nomenclature for the analysis. Symbolik links of the raw files with the new naming system will be located inside `ANALYSIS/00-reads`. 
+The script will look for the fastq.gz files in `RAW`, parse their names and prepare the nomenclature for the analysis. Symbolic links of the raw files with the new naming system will be located inside `ANALYSIS/00-reads`. 
 
 `config_diploid.file` and `module.sh` will be generated inside `ANALYSIS`, and `familypedigri.ped` inside `DOC`.
 
 Finally, a `command.sh` will be created in `ANALYSIS` and the wrapper will stop again.
 
-The user will have to check that both `DOC/familypedigri.ped` and `ANALYSIS/config_diploid.file` are right and suit the samples names and number. In case your service have exactly 3 samples with both parents been healthy and the kid affected, you should be goot to go. If there are more than 3 samples you will have to add them in both files, and family group will have to be modified for every group of 3 samples in `DOC/familypedigri.ped`. In case you have less than 3 samples, just remove the samples you do not need from both files.
+The user will have to check that both `DOC/familypedigri.ped` and `ANALYSIS/config_diploid.file` are right and suit the samples names and number. In case your service have exactly 3 samples with both parents been healthy and the kid affected, you should be good to go. If there are more than 3 samples you will have to add them in both files, and family group will have to be modified for every group of 3 samples in `DOC/familypedigri.ped`. In case you have less than 3 samples, just remove the samples you do not need from both files.
 
 Once everything is ready, load the modules inside `ANALYSIS/module.sh` and execute `command.sh` and wait for the submited jobs to finish. Then you are ready to re-execute the wrapper for the next step.
 
