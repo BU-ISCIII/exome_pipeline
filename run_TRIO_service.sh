@@ -76,13 +76,13 @@ reference_id=${reference_id}01
 # Create folder structure
 if [[ $mode == "create" ]]; then
     mkdir -p "$new_service"
-    mkdir -p "$new_service/ANALYSIS" 
-    mkdir -p "$new_service/DOC" 
-    mkdir -p "$new_service/RAW" 
-    mkdir -p "$new_service/REFERENCES" 
-    mkdir -p "$new_service/RESULTS" 
-    mkdir -p "$new_service/TMP" 
-    
+    mkdir -p "$new_service/ANALYSIS"
+    mkdir -p "$new_service/DOC"
+    mkdir -p "$new_service/RAW"
+    mkdir -p "$new_service/REFERENCES"
+    mkdir -p "$new_service/RESULTS"
+    mkdir -p "$new_service/TMP"
+
     echo ""
     echo ""
     echo "Project folder has been created in $new_service"
@@ -93,17 +93,17 @@ fi
 
 # Execute pipeline
 if [[ $mode == "execute" ]]; then
-    
+
     # Find input fastq.gz inside RAW and subdirectories
     files=$( ls -d $( find $new_service/RAW/ -name *.fastq.gz ) )
     echo "Pipeline will execute using $files as input"
-    
+
     # Copy previous service's xgen_exome files into new service's RAW folder
     cp $templates/RAW/xgen-exome-research-panel-* $new_service/RAW/
     echo "Copied xgen-exome files inside RAW";
-    
+
     # Create sample list and symbolic links in 00-reads
-    mkdir -p "$new_service/ANALYSIS/00-reads" 
+    mkdir -p "$new_service/ANALYSIS/00-reads"
     sample_root=""
     >$new_service/ANALYSIS/samples_id.txt
     for file in $files; do
@@ -122,26 +122,26 @@ if [[ $mode == "execute" ]]; then
         fi
     done
     echo "Created symbolinc links for samples inside ANALYSIS/00-reads and listed samples in ANALYSIS/samples_id.txt"
-    
+
     # Copy config_diploid.file and module.sh
     cp $templates/config_diploid.file.bak $new_service/ANALYSIS/config_diploid.file
     cp $templates/module.sh.bak $new_service/ANALYSIS/module.sh
     echo "Copied config_diploid.file and module.sh into $new_service/ANALYSIS/"
-    
+
     # Modify config_diploid.file
     sed -i "s|$reference_service|$new_service|g" $new_service/ANALYSIS/config_diploid.file
     sed -i "s/$reference_id/$trio_id/g" $new_service/ANALYSIS/config_diploid.file
     sed -i "s/ND049/$sample_root/g" $new_service/ANALYSIS/config_diploid.file
     echo "Modified config_diploid.file"
-    
+
     # Copy familypedigri.ped
     cp $templates/familypedigri.ped.bak $new_service/DOC/familypedigri.ped
     echo "Copied familypedigri.ped into $new_service/DOC/"
-    
+
     # Modify familypedigri.ped
     sed -i "s/ND049/$sample_root/g" $new_service/DOC/familypedigri.ped
     echo "Modified familypedigri.ped"
-    
+
     echo ""
     echo ""
     echo "If your service contains 3 samples, load the environment from \"$new_service/ANALYSIS/module.sh\" and you are good to go."
@@ -160,41 +160,44 @@ fi
 
 # Post-processing
 if [[ $mode == "post-processing" ]]; then
-    
+
     echo "IMPORTANT!!!!"
     echo "Make sure you have loaded the environment from \"$new_service/ANALYSIS/module.sh\" before executing this step"
     echo ""
-    
+
+    # Create annotation directories
+    mkdir -p $new_service/ANALYSIS/$trio_id/annotation/bedfilter/
+
     # Copy merge_parse.R
     cp $templates/merge_parse.R.bak $new_service/ANALYSIS/$trio_id/annotation/merge_parse.R
     cp $templates/merge_parse.R.bak $new_service/ANALYSIS/$trio_id/annotation/bedfilter/merge_parse.R
     echo "Copied merge_parse.R in $new_service/ANALYSIS/$trio_id/annotation/ and $new_service/ANALYSIS/$trio_id/annotation/bedfilter/"
-    
+
     # Execute merge_parse.R
     cd $new_service/ANALYSIS/$trio_id/annotation/
     Rscript merge_parse.R
     cd $new_service/ANALYSIS/$trio_id/annotation/bedfilter/
     Rscript merge_parse.R
     echo "Executer merge_parse.R"
-    
+
     # Unzip FastQC results
     cd $new_service/ANALYSIS/$trio_id/QC/fastqc
     cat ../../../samples_id.txt | xargs -I % echo "cd %;unzip \*.zip;cd .." | bash
     echo "FastQC results unzipped"
-    
+
     # Create stats directories
-    mkdir -p "$new_service/ANALYSIS/$trio_id/stats" 
-    mkdir -p "$new_service/ANALYSIS/$trio_id/stats/bamstats" 
-    mkdir -p "$new_service/ANALYSIS/$trio_id/stats/bedtools" 
+    mkdir -p "$new_service/ANALYSIS/$trio_id/stats"
+    mkdir -p "$new_service/ANALYSIS/$trio_id/stats/bamstats"
+    mkdir -p "$new_service/ANALYSIS/$trio_id/stats/bedtools"
     echo "Created stats directories"
-    
+
     # Copy lablog scripts into stats diresctories
     cp $templates/stats/lablog.bak $new_service/ANALYSIS/$trio_id/stats/lablog
     cp $templates/stats/bamstats/lablog.bak $new_service/ANALYSIS/$trio_id/stats/bamstats/lablog
     cp $templates/stats/bedtools/lablog.bak $new_service/ANALYSIS/$trio_id/stats/bedtools/lablog
     cp $templates/stats/bedtools/coverage_graphs.R.bak $new_service/ANALYSIS/$trio_id/stats/bedtools/03_coverage_graphs.R
     echo "Copied lablog scripts"
-    
+
     # Execute lablog scripts
     cd $new_service/ANALYSIS/$trio_id/stats/
     bash lablog
@@ -203,13 +206,13 @@ if [[ $mode == "post-processing" ]]; then
     cd $new_service/ANALYSIS/$trio_id/stats/bedtools
     bash lablog
     echo "Executed lablog scritps"
-    
+
     # Modify coverage_graphs.R
     sample_root=$( head -1 $new_service/ANALYSIS/samples_id.txt )
     sample_root=${sample_root%?}
     sed -i "s/ND049/$sample_root/g" $new_service/ANALYSIS/$trio_id/stats/bedtools/03_coverage_graphs.R
     echo "Modified 03_coverage_graphs.R"
-    
+
     echo ""
     echo ""
     echo "All final scripts successfully created. Check \"len_reads\" if different from 71 and the number of samples if not 3 in $new_service/ANALYSIS/$trio_id/stats/bedtools/03_coverage_graphs.R "
@@ -222,18 +225,18 @@ fi
 
 # Finish
 if [[ $mode == "finish" ]]; then
-    
+
     echo "Cleaning up service intermediate folders and getting everything ready for service closure"
-    
+
     # Copy MultiQC config file
     cp $templates/stats/multiqc_config.yaml.bak $new_service/ANALYSIS/$trio_id/stats/multiqc_config.yaml
     echo "Copied MiltiQC config file"
-    
+
     # Run MultiQC
     cd $new_service/ANALYSIS/$trio_id/stats
     multiqc --config multiqc_config.yaml ..
     echo "Executed MultiQC"
-    
+
     # Remove alignments and intermediate bam files
     cd $new_service/ANALYSIS/$trio_id/Alignment
     find . -name "*align*" -exec rm {} \;
@@ -242,7 +245,7 @@ if [[ $mode == "finish" ]]; then
     find . -name "*bam" -exec rm {} \;
     find . -name "*bai" -exec rm {} \;
     echo "Removed bam and bai files"
-    
+
     # Rename NC (Not to Copy) folders
     cd $new_service
     mv RAW RAW_NC
@@ -251,10 +254,10 @@ if [[ $mode == "finish" ]]; then
     mv ANALYSIS/$trio_id/QC/trimmomatic ANALYSIS/$trio_id/QC/trimmomatic_NC
     mv ANALYSIS/$trio_id/variant_calling/variants_gatk/recalibration ANALYSIS/$trio_id/variant_calling/variants_gatk/recalibration_NC
     echo "Renamed NC folders"
-    
+
     # Copy report files
     cp $templates/../report/report.html $new_service/DOC/report.html
     cp $templates/../report/report.pdf $new_service/DOC/report.pdf
     echo "Copied service report"
-    
+
 fi
