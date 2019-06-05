@@ -2,31 +2,6 @@
 ## Author S. Monzon
 ## version v2.0
 
-# Test whether the script is being executed with sge or not.
-if [ -z $SGE_TASK_ID ]; then
-    	use_sge=0
-else
-    	use_sge=1
-fi
-
-
-# Exit immediately if a pipeline, which may consist of a single simple command, a list, or a compound command returns a non-zero status
-set -e
-# Treat unset variables and parameters other than the special parameters ‘@’ or ‘*’ as an error when performing parameter expansion. An error message will be written to the standard error, and a non-interactive shell will exit
-set -u
-set -x
-
-## Usage
-
-if [ $# != 22 -a "$use_sge" == "1" ]; then
-    	echo "usage: ............"
-    	exit
-fi
-
-#Print a trace of simple commands, for commands, case commands, select commands, and arithmetic for commands and their arguments or associated word lists after they are expanded and before they are executed
-set -x
-echo `date`
-
 # Variables
 
 DIR_BAM=$1
@@ -51,6 +26,35 @@ OUTPUT_VCF_GTPOS_FIL_ANNOT=${19}
 GATK_PATH=${20}
 PED_FILE=${21}
 sample_number=${22}
+
+
+# Test whether the script is being executed with sge or not.
+if [ -z $SGE_TASK_ID ]; then
+    	use_sge=0
+    	NSLOTS=$THREADS
+else
+    	use_sge=1
+fi
+
+
+# Exit immediately if a pipeline, which may consist of a single simple command, a list, or a compound command returns a non-zero status
+set -e
+# Treat unset variables and parameters other than the special parameters ‘@’ or ‘*’ as an error when performing parameter expansion. An error message will be written to the standard error, and a non-interactive shell will exit
+set -u
+set -x
+
+## Usage
+
+if [ $# != 22 -a "$use_sge" == "1" ]; then
+    	echo "usage: ............"
+    	exit
+fi
+
+#Print a trace of simple commands, for commands, case commands, select commands, and arithmetic for commands and their arguments or associated word lists after they are expanded and before they are executed
+set -x
+echo `date`
+
+# Variables moved to the begining
 
 mkdir -p $OUTPUT_DIR/variants
 echo $BAM_NAMES | tr ":" "\n" | awk -v prefix=$DIR_BAM '{print prefix "/" $0}' > $OUTPUT_DIR/bam.list
@@ -101,19 +105,16 @@ java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_P
  	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-filterSNPs.log
 
 echo -e "Select and Filter Indels"
-java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
- 	-R $REF_PATH \
- 	-T SelectVariants \
- 	-V $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME \
- 	-o $OUTPUT_DIR/variants/$OUTPUT_INDELS_NAME \
- 	-selectType INDEL \
- 	-nt $THREADS \
- 	-S LENIENT \
- 	-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-selectIndels.log
+	java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
+ 		-R $REF_PATH \
+ 		-T SelectVariants \
+ 		-V $OUTPUT_DIR/variants/$OUTPUT_VCF_NAME \
+ 		-o $OUTPUT_DIR/variants/$OUTPUT_INDELS_NAME \
+ 		-selectType INDEL \
+ 		-nt $THREADS \
+ 		-S LENIENT \
+ 		-log $OUTPUT_DIR/$OUTPUT_VCF_NAME-selectIndels.log
 
-################################## !!!IMPORTANT!!! #################################
-###### For less than 3 samples in a TRIO service, comment the following lines ######
-####################################################################################
 	java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \
 		-T VariantFiltration \
 		-R $REF_PATH \
@@ -133,6 +134,9 @@ java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_P
 		   -o $OUTPUT_DIR/variants/$OUTPUT_VCF_FIL_NAME \
 		   -log $OUTPUT_DIR/$OUTPUT_VCF_NAME-CombineVCF.log
 
+################################## !!!IMPORTANT!!! #################################
+###### For less than 3 samples in a TRIO service, comment the following lines ######
+####################################################################################
 if (( $sample_number >= 3 )); then
 	echo -e "Calculate PhaseByTransmission"
 	java -XX:ParallelGCThreads=$NSLOTS -Djava.io.tmpdir=$TEMP $JAVA_RAM -jar $GATK_PATH/GenomeAnalysisTK.jar \

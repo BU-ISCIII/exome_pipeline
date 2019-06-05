@@ -6,6 +6,7 @@
 # Test whether the script is being executed with sge or not.
 if [ -z $SGE_TASK_ID ]; then
    	use_sge=0
+   	NSLOTS=1
 else
    	use_sge=1
 fi
@@ -20,7 +21,7 @@ set -u
 if [ $# != 5 -a "$use_sge" == "1" ]; then
    	echo "usage: ............"
    	exit
-elif [ $# != 6 -a "$use_sge" == "0" ]; then
+elif [ $# !=6 -a "$use_sge" == "0" ]; then
    	echo "usage: ............"
     	exit
 fi

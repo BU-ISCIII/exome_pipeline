@@ -7,9 +7,25 @@
 ###   Commands  ####
 ####################
 
+ ## Variables
+ INPUT_DIR=$1
+ OUTPUT_DIR=$2
+ THREADS=${10}
+ SAMPLE_NAMES=$3
+ FASTQ_FILES_R1=$4
+ FASTQ_FILES_R2=$5
+ TRIM_ARGS=${11}
+ TRIM_FILES_PAIRED_R1=$6
+ TRIM_FILES_PAIRED_R2=$7
+ TRIM_FILES_UNPAIRED_R1=$8
+ TRIM_FILES_UNPAIRED_R2=$9
+ trimmomatic_version=${12}
+ TRIMMOMATIC_PATH=${13}
+
 # Test whether the script is being executed with sge or not.
 if [ -z $SGE_TASK_ID ]; then
 	use_sge=0
+	NSLOTS=$THREADS
 else
  	use_sge=1
 fi
@@ -34,20 +50,7 @@ fi
 set -x
 echo `date`
 
-## Variables
-INPUT_DIR=$1
-OUTPUT_DIR=$2
-THREADS=${10}
-SAMPLE_NAMES=$3
-FASTQ_FILES_R1=$4
-FASTQ_FILES_R2=$5
-TRIM_ARGS=${11}
-TRIM_FILES_PAIRED_R1=$6
-TRIM_FILES_PAIRED_R2=$7
-TRIM_FILES_UNPAIRED_R1=$8
-TRIM_FILES_UNPAIRED_R2=$9
-trimmomatic_version=${12}
-TRIMMOMATIC_PATH=${13}
+#Variables moved to begining
 
 if [ "$use_sge" = "1" ]; then
  	sample_number=$SGE_TASK_ID

@@ -6,6 +6,7 @@
 # Test whether the script is being executed with sge or not.
 if [ -z $SGE_TASK_ID ]; then
    	use_sge=0
+   	NSLOTS=1
 else
    	use_sge=1
 fi
