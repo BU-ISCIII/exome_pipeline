@@ -17,7 +17,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 * [Picard](#picard) v.1.140 - enrichment and alignment metrics
 * [GATK](#varscan) v.3.4.46 - variant calling.
 * [KGGSeq](#kggseq) v.0.8 - variant annotation.
-* [Exomiser](#kggseq) v12.1.0 - variant annotation.
+* [Exomiser](#exomiser) v12.1.0 - variant annotation.
 * [MultiQC](#multiqc) v1.5 - quality statistics summary
 
 > Each analysis folder contains a log folder with the log files for each process and each sample.
