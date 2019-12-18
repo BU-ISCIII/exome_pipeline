@@ -17,6 +17,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 * [Picard](#picard) v.1.140 - enrichment and alignment metrics
 * [GATK](#varscan) v.3.4.46 - variant calling.
 * [KGGSeq](#kggseq) v.0.8 - variant annotation.
+* [Exomiser](#kggseq) v12.1.0 - variant annotation.
 * [MultiQC](#multiqc) v1.5 - quality statistics summary
 
 > Each analysis folder contains a log folder with the log files for each process and each sample.
@@ -183,6 +184,20 @@ Moreover variants are prioritise by Genetic inheritance sharing according to the
 	- `all_samples_gtpos_fil_annot_doublehit.vcf.flt.txt`: double-hit variants with annotation.
 	- `all_samples_gtpos_fil_annot_denovo.vcf.flt.txt`: de novo variants with annotation.
   - Only variants filtered by the bed file. Same as above but in `bedfilter` folder.
+  
+### Exomiser
+The Exomizer is a Java program that functionally annotates variants from whole-exome sequencing data starting from a VCF file (version 4). The functional annotation code is based on Jannovar and uses UCSC KnownGene transcript definitions and hg19 genomic coordinates
+
+Variants are prioritized according to user-defined criteria on variant frequency, pathogenicity, quality, inheritance pattern, and model organism phenotype data. Predicted pathogenicity data was extracted from the dbNSFP resource.
+
+Developed by the Computational Biology and Bioinformatics group at the [Institute for Medical Genetics and Human Genetics](http://genetik.charite.de/) of the [Charité - Universitätsmedizin Berlin](http://www.charite.de/), the Mouse Informatics Group at the [Sanger Institute](http://www.sanger.ac.uk/) and the Smedley group at [Queen Mary University of London](https://qmul.ac.uk/whri).
+
+**Results directory:** ANALYSIS/{ANALYSIS_ID}/annotation/exomiser
+- Files:
+  - `vcf_merge.html`: FINAL annotation file in html, summarising the annotations by gene. It contains all paramters from variant filtering and all annotation from Exomiser.
+  - `*.tsv`: Tables of variants and affected genes classified by type of inheritance.
+  - `*.vcf`: VCF files of the variants filtered and annotated by Exomiser, classified by type of inheritance.
+
 
 ## Quality control report
 ### MultiQC
