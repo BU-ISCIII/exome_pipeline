@@ -194,7 +194,7 @@ Developed by the Computational Biology and Bioinformatics group at the [Institut
 
 **Results directory:** ANALYSIS/{ANALYSIS_ID}/annotation/exomiser
 - Files:
-  - `vcf_merge.html`: FINAL annotation file in html, summarising the annotations by gene. It contains all paramters from variant filtering and all annotation from Exomiser.
+  - `annotation_exoiser.html`: FINAL annotation file in html, summarising the annotations by gene. It contains all paramters from variant filtering and all annotation from Exomiser.
   - `*.tsv`: Tables of variants and affected genes classified by type of inheritance.
   - `*.vcf`: VCF files of the variants filtered and annotated by Exomiser, classified by type of inheritance.
 
